@@ -1,0 +1,2595 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Ombak Tenang — Idle Fishing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sea-deep:#082c30;
+    --sea-mid:#0e4a48;
+    --sea-light:#1f7268;
+    --sea-crest:#3c9c8c;
+    --sky-top:#2c3e56;
+    --sky-mid:#3a4f5f;
+    --panel-bg:rgba(8,32,34,0.68);
+    --panel-bg-solid:#0d3336;
+    --panel-border:rgba(238,232,214,0.08);
+    --text-main:#f2ece0;
+    --text-dim:rgba(242,236,224,0.6);
+    --accent-gold:#e6ab52;
+    --accent-rose:#e0709a;
+    --accent-blue:#5fa9d6;
+    --accent-violet:#9482d9;
+    --accent-red:#d3564f;
+    --accent-yellow:#f4d35e;
+    --radius:16px;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    height:100%;
+    margin:0;
+    overflow:hidden;
+    overscroll-behavior:none;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(232,168,96,.10), transparent 60%),
+      linear-gradient(180deg,#101a24,#0a141c 55%,#070d12);
+    color:var(--text-main);
+    font-family:'Inter',system-ui,sans-serif;
+  }
+
+  .app{
+    height:100vh;
+    height:100dvh;
+    max-width:1180px;
+    margin:0 auto;
+    padding:10px 12px;
+    padding-bottom:calc(14px + env(safe-area-inset-bottom, 18px));
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow:hidden;
+  }
+
+  
+  .topbar{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .brand{display:flex;align-items:center;gap:9px;min-width:0;}
+  .brand-emoji{font-size:22px;flex-shrink:0;}
+  .brand h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:16px;
+    margin:0;
+    line-height:1.1;
+    white-space:nowrap;
+  }
+  .brand .tagline{
+    margin:1px 0 0;
+    font-size:10px;
+    color:var(--text-dim);
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .luck-badge{
+    font-size:9px;
+    background:rgba(148,130,217,.18);
+    color:var(--accent-violet);
+    border:1px solid rgba(148,130,217,.3);
+    border-radius:999px;
+    padding:1px 7px;
+    font-family:'DM Mono',monospace;
+    white-space:nowrap;
+  }
+  .top-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+  .coin-display{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    background:linear-gradient(180deg,rgba(230,171,82,.14),rgba(230,171,82,.05));
+    border:1px solid rgba(230,171,82,.28);
+    padding:6px 12px;
+    border-radius:999px;
+  }
+  .coin-icon{font-size:13px;}
+  #coinCount{
+    font-family:'DM Mono',monospace;
+    font-size:14px;
+    font-weight:500;
+    color:var(--accent-gold);
+  }
+  .icon-btn{
+    width:32px;height:32px;
+    border-radius:10px;
+    border:1px solid var(--panel-border);
+    background:var(--panel-bg);
+    color:var(--text-main);
+    font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,.08);}
+
+  
+  .event-banner{
+    flex:0 0 auto;
+    background:linear-gradient(90deg,rgba(244,211,94,.16),rgba(244,211,94,.04));
+    border:1px solid rgba(244,211,94,.32);
+    color:var(--accent-yellow);
+    padding:6px 12px;
+    border-radius:10px;
+    font-size:11px;
+    text-align:center;
+    line-height:1.3;
+  }
+  .hidden{display:none !important;}
+
+  
+  .main-area{
+    flex:1 1 auto;
+    min-height:0;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    overflow:hidden;
+  }
+
+  
+  .sea-stage{
+    position:relative;
+    flex:1 1 auto;
+    min-height:120px;
+    border-radius:20px;
+    overflow:hidden;
+    background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 32%,var(--sea-crest) 33%,var(--sea-light) 46%,var(--sea-mid) 72%,var(--sea-deep) 100%);
+    border:1px solid rgba(238,232,214,.06);
+    box-shadow:0 14px 34px rgba(0,0,0,.4), inset 0 0 70px rgba(0,0,0,.3);
+  }
+
+  .sun{
+    position:absolute;left:50%;top:16%;
+    width:110px;height:110px;
+    transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(244,213,94,.9), rgba(232,168,96,.35) 45%, transparent 70%);
+    filter:blur(2px);
+    opacity:.85;
+  }
+  .horizon-glow{
+    position:absolute;left:0;right:0;top:31%;height:20px;
+    background:linear-gradient(180deg, rgba(244,213,94,.35), transparent);
+    filter:blur(6px);
+  }
+  .cloud{position:absolute;height:18px;border-radius:999px;background:rgba(255,255,255,.16);filter:blur(3px);}
+  .cloud1{width:100px;top:11%;left:-20%;animation:driftCloud 70s linear infinite;}
+  .cloud2{width:70px;top:20%;left:-15%;opacity:.7;animation:driftCloud 95s linear infinite;animation-delay:-30s;}
+  @keyframes driftCloud{from{transform:translateX(0);}to{transform:translateX(160vw);}}
+
+  .wave{position:absolute;left:0;right:0;background-repeat:repeat-x;}
+  .wave-1{
+    top:29%;height:32px;background-size:280px 32px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 60'%3E%3Cpath d='M0 30 Q37.5 8 75 30 T150 30 T225 30 T300 30 V60 H0 Z' fill='%233c9c8c'/%3E%3C/svg%3E");
+    animation:waveScroll 11s linear infinite; opacity:.75;
+  }
+  .wave-2{
+    top:33%;height:40px;background-size:320px 40px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 44'%3E%3Cpath d='M0 24 Q42.5 4 85 24 T170 24 T255 24 T340 24 V44 H0 Z' fill='%231f7268'/%3E%3C/svg%3E");
+    animation:waveScroll 16s linear infinite reverse; opacity:.85;
+  }
+  .wave-3{
+    top:38%;height:22px;background-size:200px 22px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 220 26'%3E%3Cpath d='M0 14 Q27.5 2 55 14 T110 14 T165 14 T220 14 V26 H0 Z' fill='%23eaf6ef' fill-opacity='0.5'/%3E%3C/svg%3E");
+    animation:waveScroll 7s linear infinite; opacity:.5;
+  }
+  @keyframes waveScroll{from{background-position-x:0;}to{background-position-x:-1000px;}}
+
+  .glint{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(244,213,94,.8);box-shadow:0 0 6px 1px rgba(244,213,94,.6);animation:twinkle 3.2s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.8);}50%{opacity:.9;transform:scale(1.3);}}
+
+  .vignette{position:absolute;inset:0;box-shadow:inset 0 0 90px 26px rgba(4,16,17,.55);pointer-events:none;}
+
+  
+  .night-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg, rgba(3,8,18,.62) 0%, rgba(3,8,18,.32) 34%, transparent 55%);
+    opacity:0;transition:opacity 1.6s ease;
+    pointer-events:none;
+  }
+  .sea-stage.is-night .night-overlay{opacity:1;}
+  .stars-layer{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.6s ease;}
+  .sea-stage.is-night .stars-layer{opacity:1;}
+  .star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:starTwinkle 3.6s ease-in-out infinite;}
+  @keyframes starTwinkle{0%,100%{opacity:.15;}50%{opacity:.95;}}
+
+  .aurora{
+    position:absolute;left:0;right:0;top:0;height:46%;
+    opacity:0;transition:opacity 2.2s ease;
+    pointer-events:none;mix-blend-mode:screen;
+    overflow:hidden;
+  }
+  .sea-stage.is-aurora .aurora{opacity:1;}
+  .aurora-band{
+    position:absolute;left:-25%;right:-25%;height:70px;
+    filter:blur(20px);opacity:.55;border-radius:50%;
+  }
+  .aurora-band.b1{top:0%; background:linear-gradient(90deg, transparent, #6ee7b7, #93e8c9, transparent); animation:auroraDrift 15s ease-in-out infinite;}
+  .aurora-band.b2{top:10%; background:linear-gradient(90deg, transparent, #93c5fd, #a5b4fc, transparent); animation:auroraDrift 19s ease-in-out infinite reverse; animation-delay:-4s;}
+  .aurora-band.b3{top:19%; background:linear-gradient(90deg, transparent, #c4b5fd, #e0709a, transparent); animation:auroraDrift 23s ease-in-out infinite; animation-delay:-9s;}
+  @keyframes auroraDrift{
+    0%,100%{transform:translateX(0) scaleY(1);}
+    50%{transform:translateX(6%) scaleY(1.5);}
+  }
+
+  .boat-rig{
+    position:absolute;left:50%;top:35%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;
+    animation:bob 3.8s ease-in-out infinite;
+  }
+  @keyframes bob{
+    0%,100%{transform:translateX(-50%) translateY(0) rotate(0deg);}
+    50%{transform:translateX(-50%) translateY(-7px) rotate(1.2deg);}
+  }
+  .boat-reflection{
+    position:absolute;left:50%;top:50px;width:54px;height:9px;transform:translateX(-50%);
+    background:radial-gradient(ellipse, rgba(4,16,17,.5), transparent 75%);
+    animation:reflectPulse 3.8s ease-in-out infinite; z-index:0;
+  }
+  @keyframes reflectPulse{0%,100%{opacity:.5;transform:translateX(-50%) scaleX(1);}50%{opacity:.3;transform:translateX(-50%) scaleX(.85);}}
+  .boat-svg{width:64px;height:auto;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35));position:relative;z-index:1;}
+  .line{width:1.5px;height:56px;background:linear-gradient(180deg, rgba(242,236,224,.5), rgba(242,236,224,.15));margin-top:-2px;position:relative;z-index:1;}
+  .progress-ring{width:32px;height:32px;margin-top:-32px;transform:rotate(-90deg);position:relative;z-index:1;}
+  .ring-bg{fill:none;stroke:rgba(242,236,224,.14);stroke-width:2.5;}
+  .ring-fg{fill:none;stroke:var(--accent-gold);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:88;transition:stroke-dashoffset .1s linear;}
+  .hook{font-size:14px;margin-top:-7px;position:relative;z-index:1;}
+
+  .ripple{position:absolute;left:50%;top:39%;width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(238,232,214,.55);transform:translate(-50%,-50%);animation:rippleOut 1.4s ease-out forwards;pointer-events:none;}
+  @keyframes rippleOut{0%{width:6px;height:6px;opacity:.7;}100%{width:60px;height:18px;opacity:0;}}
+
+  .catch-layer{position:absolute;inset:0;pointer-events:none;}
+  .fish-pop{position:absolute;font-size:18px;left:50%;top:52%;animation:popRise 1.05s cubic-bezier(.2,.8,.3,1) forwards;text-shadow:0 2px 6px rgba(0,0,0,.4);}
+  @keyframes popRise{
+    0%{transform:translate(-50%,0) scale(.5) rotate(0deg);opacity:0;}
+    18%{opacity:1;transform:translate(-50%,-14px) scale(1.05) rotate(-6deg);}
+    100%{transform:translate(calc(-50% + var(--dx,0px)),-90px) scale(.85) rotate(8deg);opacity:0;}
+  }
+
+  .bucket-full-note{
+    position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+    background:rgba(211,86,79,.88);padding:5px 12px;border-radius:999px;font-size:10.5px;
+    box-shadow:0 6px 16px rgba(0,0,0,.3);
+  }
+
+  
+  .control-panel{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+    background:var(--panel-bg-solid);
+    border:1px solid var(--panel-border);
+    border-radius:16px;
+    padding:9px 10px;
+    box-shadow:0 8px 22px rgba(0,0,0,.28);
+  }
+
+  .ember-row{
+    display:flex;align-items:center;gap:8px;
+    flex-wrap:wrap;
+  }
+  .ember-label{
+    font-size:11px;color:var(--text-dim);
+    font-family:'DM Mono',monospace;
+    white-space:nowrap;
+  }
+  .tier-chips{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+  .tier-chip{
+    display:flex;align-items:center;gap:3px;
+    font-size:10px;
+    background:rgba(255,255,255,.04);
+    border-radius:7px;
+    padding:2px 6px;
+    border-left:2px solid var(--c,#888);
+    color:var(--text-dim);
+  }
+  .tier-chip .n{font-family:'DM Mono',monospace;color:var(--text-main);}
+  .tier-chip.empty{opacity:.35;}
+
+  .action-row{
+    display:flex;gap:7px;align-items:stretch;
+  }
+  .claim-btn{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(180deg,#f0be74,var(--accent-gold));
+    color:#2a1c05;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(230,171,82,.25);
+    transition:transform .15s ease, opacity .15s ease;
+  }
+  .claim-btn:disabled{opacity:.3;cursor:default;box-shadow:none;}
+  .claim-btn:not(:disabled):hover{transform:translateY(-1px);}
+  .panel-btn{
+    width:42px;
+    border:1px solid var(--panel-border);
+    border-radius:12px;
+    background:rgba(255,255,255,.03);
+    color:var(--text-main);
+    font-size:16px;
+    cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:1px;
+  }
+  .panel-btn span.lbl{font-size:7.5px;color:var(--text-dim);font-family:'Inter';}
+  .panel-btn:hover{background:rgba(255,255,255,.08);}
+
+  
+  @media (min-width:820px){
+    .main-area{flex-direction:row;}
+    .sea-stage{flex:1.6 1 auto;min-height:0;}
+    .control-panel{
+      flex:0 0 300px;
+      height:100%;
+      justify-content:space-between;
+      padding:16px;
+      border-radius:20px;
+    }
+    .ember-row{flex-direction:column;align-items:stretch;gap:8px;}
+    .tier-chips{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+    .action-row{flex-direction:column;}
+    .panel-btn{width:100%;flex-direction:row;gap:6px;padding:8px;font-size:14px;}
+    .panel-btn span.lbl{font-size:11px;}
+    .brand h1{font-size:19px;}
+    .brand-emoji{font-size:26px;}
+  }
+
+  
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(4,12,14,.72);
+    backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-box{
+    width:100%;max-width:560px;
+    max-height:min(88vh,720px);
+    background:var(--panel-bg-solid);
+    border:1px solid var(--panel-border);
+    border-radius:20px;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+  }
+  .modal-head{
+    flex:0 0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 18px;
+    border-bottom:1px solid var(--panel-border);
+  }
+  .modal-head h3{
+    margin:0;font-family:'Fraunces',serif;font-size:17px;font-weight:600;
+  }
+  .modal-head .sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .modal-close{
+    width:30px;height:30px;border-radius:9px;border:none;
+    background:rgba(255,255,255,.06);color:var(--text-main);
+    font-size:15px;cursor:pointer;flex-shrink:0;
+  }
+  .modal-close:hover{background:rgba(255,255,255,.12);}
+  .modal-body{
+    flex:1 1 auto;
+    overflow-y:auto;
+    padding:14px 18px 20px;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  
+  .skill-modal-box{max-width:640px;}
+  .skill-tabs{
+    flex:0 0 auto;
+    display:flex;gap:6px;overflow-x:auto;
+    padding:10px 18px 0;
+    -webkit-overflow-scrolling:touch;
+  }
+  .skill-tabs::-webkit-scrollbar{display:none;}
+  .skill-tab{
+    flex-shrink:0;
+    display:flex;align-items:center;gap:5px;
+    padding:6px 12px;border-radius:999px;
+    font-size:11px;font-weight:600;
+    background:rgba(255,255,255,.04);
+    border:1px solid transparent;
+    color:var(--text-dim);
+    cursor:pointer;white-space:nowrap;
+  }
+  .skill-tab .n{
+    font-family:'DM Mono',monospace;font-weight:400;
+    font-size:9.5px;opacity:.75;
+  }
+  .skill-tab.active{
+    background:rgba(230,171,82,.16);
+    color:var(--accent-gold);
+    border-color:rgba(230,171,82,.32);
+  }
+  .skill-tree-body{display:flex;flex-direction:column;gap:14px;}
+  .skill-tree-canvas{
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:16px;
+    padding:6px 2px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .skill-tree-canvas svg{display:block;height:auto;}
+  .tree-line{stroke:rgba(255,255,255,.14);stroke-width:3;fill:none;}
+  .tree-line.on{stroke:var(--accent-gold);}
+  .tree-node-circle{
+    fill:rgba(255,255,255,.05);
+    stroke:rgba(255,255,255,.18);
+    stroke-width:2;
+    cursor:pointer;
+    transition:fill .15s ease, stroke .15s ease;
+  }
+  .tree-node.locked .tree-node-circle{cursor:not-allowed;}
+  .tree-node.available .tree-node-circle{stroke:var(--accent-gold);fill:rgba(230,171,82,.12);}
+  .tree-node.partial .tree-node-circle{stroke:var(--accent-gold);fill:rgba(230,171,82,.28);}
+  .tree-node.maxed .tree-node-circle{stroke:var(--accent-gold);fill:var(--accent-gold);}
+  .tree-node.selected .tree-node-ring{stroke:#fff;}
+  .tree-node-ring{fill:none;stroke:rgba(255,255,255,0);stroke-width:2;}
+  .tree-node-progress{fill:none;stroke:var(--accent-gold);stroke-width:3;stroke-linecap:round;transform-origin:center;}
+  .tree-node-emoji{font-size:18px;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+  .tree-node.locked .tree-node-emoji{opacity:.35;}
+  .tree-node.maxed .tree-node-emoji{filter:drop-shadow(0 0 2px rgba(0,0,0,.5));}
+  .tree-node-lock{font-size:11px;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+  .tree-node-lvl{font-size:9px;font-family:'DM Mono',monospace;fill:var(--text-dim);text-anchor:middle;pointer-events:none;}
+  .tree-root-emoji{font-size:16px;text-anchor:middle;dominant-baseline:central;opacity:.8;}
+
+  .skill-detail{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:14px;
+    padding:12px 14px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .skill-detail .sd-icon{
+    width:38px;height:38px;border-radius:10px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;background:rgba(255,255,255,.05);
+  }
+  .skill-detail .sd-info{flex:1;min-width:0;}
+  .skill-detail .sd-name{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;}
+  .skill-detail .sd-effect{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .skill-detail .sd-lock-note{font-size:10.5px;color:var(--accent-rose);margin-top:3px;}
+  .pity-progress{margin-top:6px;}
+  .pity-progress-track{height:6px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;}
+  .pity-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-violet),var(--accent-rose));border-radius:4px;transition:width .3s ease;}
+  .pity-progress-label{font-size:10px;color:var(--text-dim);margin-top:3px;font-family:'DM Mono',monospace;}
+  .pity-progress.inactive .pity-progress-fill{background:rgba(255,255,255,.18);}
+  .pity-progress.inactive .pity-progress-label{opacity:.6;}
+  .pips{display:inline-flex;gap:2px;}
+  .pip{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.15);}
+  .pip.on{background:var(--accent-gold);}
+  .skill-buy{
+    border:none;border-radius:9px;padding:8px 12px;
+    font-size:11px;font-weight:600;font-family:'DM Mono',monospace;
+    background:rgba(230,171,82,.15);color:var(--accent-gold);
+    cursor:pointer;white-space:nowrap;flex-shrink:0;
+  }
+  .skill-buy:disabled{opacity:.3;cursor:default;}
+  .skill-buy.maxed{background:rgba(255,255,255,.05);color:var(--text-dim);}
+
+  
+  .idx-progress{
+    font-size:11px;color:var(--text-dim);margin-bottom:12px;
+    font-family:'DM Mono',monospace;
+  }
+  .idx-tier-head{
+    display:flex;align-items:center;gap:7px;
+    font-size:12px;font-weight:600;margin:14px 0 8px;
+  }
+  .idx-tier-head:first-child{margin-top:0;}
+  .idx-dot{width:8px;height:8px;border-radius:50%;}
+  .idx-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;
+  }
+  .idx-item{
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.04);
+    border-radius:10px;
+    padding:8px 6px;
+    text-align:center;
+  }
+  .idx-item .em{font-size:18px;display:block;}
+  .idx-item .nm{font-size:9.5px;color:var(--text-dim);margin-top:3px;line-height:1.2;}
+  .idx-item .ct{font-size:8.5px;color:var(--accent-gold);font-family:'DM Mono',monospace;margin-top:2px;}
+  .idx-item.undiscovered{opacity:.4;}
+  .idx-item.undiscovered .em{filter:grayscale(1) brightness(.6);}
+
+  
+  .settings-body{display:flex;flex-direction:column;gap:14px;}
+  .settings-section{
+    display:flex;flex-direction:column;gap:8px;
+    background:rgba(255,255,255,.025);
+    border:1px solid rgba(255,255,255,.04);
+    border-radius:12px;padding:12px 13px;
+  }
+  .settings-section h4{margin:0;font-size:11.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.03em;}
+  .test-toggle{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-dim);cursor:pointer;}
+  .settings-note{font-size:11px;color:var(--text-dim);line-height:1.5;}
+  .reset-btn{
+    align-self:flex-start;background:none;border:1px solid rgba(211,86,79,.4);
+    color:#e18e89;padding:8px 14px;border-radius:10px;font-size:12px;cursor:pointer;
+  }
+  .reset-btn:hover{background:rgba(211,86,79,.1);}
+  .unlock-btn{
+    align-self:flex-start;
+    background:rgba(148,130,217,.14);border:1px solid rgba(148,130,217,.32);
+    color:var(--accent-violet);padding:8px 14px;border-radius:10px;
+    font-size:12px;font-weight:600;cursor:pointer;
+  }
+  .unlock-btn:hover{background:rgba(148,130,217,.22);}
+  .test-unlocked-badge{
+    font-size:9.5px;color:#9fe3c8;background:rgba(111,231,183,.14);
+    border:1px solid rgba(111,231,183,.3);border-radius:999px;padding:2px 8px;
+    font-family:'DM Mono',monospace;align-self:flex-start;
+  }
+
+  .toast{
+    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+    background:rgba(13,51,54,.96);border:1px solid var(--panel-border);
+    padding:9px 18px;border-radius:999px;font-size:12px;
+    box-shadow:0 10px 28px rgba(0,0,0,.4);
+    transition:opacity .3s ease, transform .3s ease;
+    z-index:200;max-width:90vw;text-align:center;
+  }
+  .toast.hidden{opacity:0;transform:translate(-50%,10px);pointer-events:none;}
+
+  .now-playing{
+    position:fixed;top:calc(12px + env(safe-area-inset-top, 0px));left:50%;transform:translateX(-50%) translateY(-14px);
+    display:flex;align-items:center;gap:12px;
+    background:rgba(13,51,54,.96);border:1px solid var(--panel-border);
+    padding:10px 18px 10px 10px;border-radius:999px;
+    box-shadow:0 10px 30px rgba(0,0,0,.45);
+    z-index:210;max-width:min(92vw,380px);
+    opacity:0;pointer-events:none;
+    transition:opacity .35s ease, transform .35s ease;
+  }
+  .now-playing.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .now-playing-disc{
+    width:38px;height:38px;border-radius:50%;flex:0 0 auto;
+    background:
+      radial-gradient(circle at center, var(--panel-bg-solid) 0 6px, rgba(255,255,255,.85) 6px 7px, transparent 7px),
+      repeating-radial-gradient(circle at center, #14181a 0 2px, #1c2224 2px 4px);
+    border:1px solid rgba(255,255,255,.15);
+    animation:npSpin 3.2s linear infinite;
+  }
+  @keyframes npSpin{ from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+  .now-playing-text{min-width:0;}
+  .now-playing-label{font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--text-dim);font-family:'DM Mono',monospace;}
+  .now-playing-title{font-size:13px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:250px;}
+
+  .sea-stage.map-laguna{background:linear-gradient(180deg,#6ec3e6 0%,#a9e0ee 32%,#5fd6c8 33%,#34b9b4 46%,#1f93a0 72%,#0e6177 100%);}
+  .map-laguna .sun{left:72%;top:14%;background:radial-gradient(circle,rgba(255,250,220,.95),rgba(255,226,150,.4) 45%,transparent 70%);opacity:.95;}
+  .map-laguna .horizon-glow{background:linear-gradient(180deg,rgba(255,255,255,.45),transparent);}
+  .map-laguna .cloud{background:rgba(255,255,255,.6);}
+  .map-laguna .wave-1,.map-laguna .wave-2{filter:brightness(1.45) saturate(1.2);}
+  .map-laguna .night-overlay,.map-laguna .stars-layer,.map-laguna .aurora{display:none;}
+  .map-laguna .vignette{box-shadow:inset 0 0 80px 20px rgba(2,40,52,.4);}
+  .map-laguna .glint{background:rgba(255,255,255,.9);box-shadow:0 0 6px 1px rgba(255,255,255,.7);}
+  .island{display:none;position:absolute;left:9%;top:19%;width:104px;}
+  .map-laguna .island{display:block;}
+  .idx-tabs{padding:0 0 12px;}
+  .idx-item.ub{opacity:.55;}
+  .idx-item.ub .em{filter:grayscale(1);}
+  .ub-tag{display:block;font-size:8.5px;color:var(--accent-red);font-family:'DM Mono',monospace;margin-top:2px;}
+  .row-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:12px 14px;margin-bottom:10px;}
+  .row-card.current{border-color:rgba(230,171,82,.4);}
+  .row-card .rc-ico{font-size:26px;flex-shrink:0;}
+  .row-card .rc-info{flex:1;min-width:0;}
+  .rc-name{font-size:13px;font-weight:600;}
+  .rc-desc{font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.4;}
+  .mini-bar{height:6px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:6px;}
+  .mini-bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent-gold),var(--accent-rose));}
+  .sec-title{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.03em;margin:4px 0 8px;}
+  .dev-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+  .dev-btn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--text-main);border-radius:9px;padding:8px 6px;font-size:11px;cursor:pointer;}
+  .dev-btn:hover{background:rgba(255,255,255,.1);}
+  .q-row{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.03);margin-bottom:6px;font-size:11.5px;}
+  .q-row .q-main{flex:1;min-width:0;}
+  .q-row.done{opacity:.55;}
+  .q-row .q-num{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-dim);white-space:nowrap;}
+  .auto-row{display:none;gap:6px;margin:0 0 8px;}
+  .auto-row.on{display:flex;}
+  .auto-chip{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:var(--text-main);border-radius:999px;padding:5px 11px;font-size:11px;cursor:pointer;}
+  .auto-chip.active{border-color:rgba(230,171,82,.55);color:var(--accent-gold);}
+  .cutscene{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000;cursor:pointer;animation:csIn .5s ease-out both;}
+  .cutscene.hidden{display:none;}
+  .cutscene.out{animation:csOut .6s ease-in both;}
+  @keyframes csIn{from{opacity:0}to{opacity:1}}
+  @keyframes csOut{to{opacity:0}}
+  .cs-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,var(--cs-glow) 0%,var(--cs-dark) 65%);animation:csBg 5s ease-out both;}
+  @keyframes csBg{0%{filter:brightness(.2)}35%{filter:brightness(1.7)}100%{filter:brightness(1)}}
+  .cs-rays{position:absolute;left:50%;top:50%;width:230vmax;height:230vmax;margin:-115vmax 0 0 -115vmax;opacity:0;background:repeating-conic-gradient(from 0deg,var(--cs-color) 0 4deg,transparent 4deg 14deg);-webkit-mask-image:radial-gradient(circle,#000 0,transparent 42%);mask-image:radial-gradient(circle,#000 0,transparent 42%);animation:csRays 12s linear infinite,csFade 1.5s .6s ease-out forwards;}
+  @keyframes csRays{to{transform:rotate(360deg)}}
+  @keyframes csFade{to{opacity:.55}}
+  .cs-ring{position:absolute;left:50%;top:50%;width:30vmin;height:30vmin;margin:-15vmin 0 0 -15vmin;border-radius:50%;border:3px solid var(--cs-color);opacity:0;animation:csRing 2.4s ease-out both;}
+  @keyframes csRing{0%{transform:scale(.1);opacity:.95}100%{transform:scale(6);opacity:0}}
+  .cs-particle{position:absolute;left:50%;top:50%;width:var(--sz);height:var(--sz);border-radius:50%;background:var(--cs-color);box-shadow:0 0 10px 2px var(--cs-color);opacity:0;animation:csPart var(--dur) var(--dl) ease-out both;}
+  @keyframes csPart{0%{transform:translate(0,0) scale(.3);opacity:0}15%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:0}}
+  .cs-bar{position:absolute;left:0;right:0;height:0;background:#000;z-index:3;animation:csBar .9s .1s ease-out forwards;}
+  .cs-bar.top{top:0;}.cs-bar.bot{bottom:0;}
+  @keyframes csBar{to{height:12vh}}
+  .cs-flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:4;animation:csFlash 1.2s 1.1s ease-out both;pointer-events:none;}
+  @keyframes csFlash{0%{opacity:0}12%{opacity:.95}100%{opacity:0}}
+  .cs-content{position:relative;z-index:2;text-align:center;padding:0 24px;}
+  .cs-tier{font-family:'DM Mono',monospace;font-size:13px;letter-spacing:.5em;color:var(--cs-color);text-shadow:0 0 14px var(--cs-color);opacity:0;animation:csText 1s .6s ease-out both;margin-bottom:22px;}
+  .cs-emoji{font-size:clamp(90px,24vmin,200px);line-height:1;opacity:0;filter:drop-shadow(0 0 30px var(--cs-color));animation:csEmoji 1.6s 1.1s cubic-bezier(.2,1.4,.4,1) both,csFloat 3s 2.8s ease-in-out infinite;}
+  @keyframes csEmoji{0%{opacity:0;transform:scale(.1) rotate(-25deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+  @keyframes csFloat{50%{transform:translateY(-10px) scale(1.04)}}
+  .cs-name{font-size:clamp(26px,6.5vmin,52px);font-weight:700;color:#fff;text-shadow:0 0 22px var(--cs-color),0 2px 0 rgba(0,0,0,.5);opacity:0;animation:csText 1.2s 2.1s ease-out both;margin-top:20px;letter-spacing:.04em;}
+  .cs-sub{font-size:13px;color:rgba(255,255,255,.75);opacity:0;animation:csText 1s 2.9s ease-out both;margin-top:10px;}
+  @keyframes csText{from{opacity:0;transform:translateY(14px);letter-spacing:.9em}to{opacity:1;transform:none}}
+  .cs-skip{position:absolute;bottom:3vh;left:0;right:0;text-align:center;z-index:5;font-size:11px;color:rgba(255,255,255,.5);opacity:0;animation:csText 1s 1.5s ease-out both;}
+  .cutscene.cs-mythical{--cs-color:#ff7fb0;--cs-glow:#5a1840;--cs-dark:#12040e;}
+  .cutscene.cs-secret{--cs-color:#ff3b30;--cs-glow:#4a0806;--cs-dark:#080000;}
+  .cutscene.cs-limited{--cs-color:#ffd95e;--cs-glow:#5a4300;--cs-dark:#0d0900;}
+  @keyframes csShake{0%,100%{transform:translate(0,0)}20%{transform:translate(-6px,3px)}40%{transform:translate(5px,-4px)}60%{transform:translate(-4px,-3px)}80%{transform:translate(4px,4px)}}
+  .cs-mythical .cs-rays{animation:csRays 18s linear infinite,csFade 1.5s .6s ease-out forwards;}
+  .cs-limited .cs-name{background:linear-gradient(90deg,#fff3b0,#ffd95e,#fff3b0);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;animation:csText 1.2s 2.1s ease-out both,csShine 2.5s 3.3s linear infinite;}
+  @keyframes csShine{to{background-position:-200% 0}}
+  .cs-main{display:none;position:absolute;inset:0}
+  .cs-main.go{display:flex;align-items:center;justify-content:center;animation:csIn .4s both}
+  .cs-secret .cs-main.go{animation:csIn .4s both,csShake .5s 1.1s linear 3}
+  .cs-intro{position:absolute;inset:0;display:none;z-index:6;overflow:hidden;background:linear-gradient(#020816,#0a2342 58%,#06182c)}
+  .cs-intro.on{display:block}
+  .i-secret{--fx:18vw;--fy:62vh;--wc:#a30d0d}
+  .i-limited{--fx:50vw;--fy:56vh;--wc:#d9a31a}
+  .ci-star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;animation:ciTw 2s ease-in-out infinite}
+  @keyframes ciTw{50%{opacity:.2}}
+  .ci-moon{position:absolute;left:80vw;top:12vh;width:11vmin;height:11vmin;border-radius:50%;background:#f3f1e3;box-shadow:0 0 40px 10px rgba(243,241,227,.35)}
+  .i-limited .ci-moon{background:#ffe08a;box-shadow:0 0 60px 20px rgba(255,217,94,.5)}
+  .ci-sea{position:absolute;left:-5%;right:-5%;bottom:0;background:linear-gradient(#0f4a73,#06233b)}
+  .ci-sea.b{height:40vh;z-index:1}
+  .ci-sea.f{height:36vh;z-index:4;background:linear-gradient(#0b3a5c,#041828);border-top:2px solid rgba(160,220,255,.25)}
+  .ci-boat{position:absolute;left:66vw;top:51vh;font-size:15vmin;z-index:3;transform:translate(-50%,-50%);animation:ciBob 2s ease-in-out infinite}
+  @keyframes ciBob{50%{transform:translate(-50%,-46%) rotate(3deg)}}
+  .ci-fish{position:absolute;left:var(--fx);top:var(--fy);font-size:26vmin;line-height:1;z-index:2;filter:drop-shadow(0 0 20px rgba(255,255,255,.4))}
+  .i-secret .ci-fish{animation:csSecFish var(--ms) linear both}
+  .i-limited .ci-fish{animation:csLimFish var(--ms) linear both;filter:drop-shadow(0 0 28px #ffd95e)}
+  .ci-fish.g{filter:blur(4px) drop-shadow(0 0 24px #ffd95e)}
+  .ci-beam{display:none;position:absolute;left:50vw;top:0;width:12vw;height:62vh;z-index:2;transform-origin:top;background:linear-gradient(rgba(255,217,94,0),#ffd95e,#fff6c9);animation:ciBeam 1.6s .2s both}
+  .i-limited .ci-beam{display:block}
+  @keyframes ciBeam{0%{opacity:0;transform:translateX(-50%) scaleY(0)}40%{opacity:1;transform:translateX(-50%) scaleY(1)}100%{opacity:0;transform:translateX(-50%) scaleY(1) scaleX(.2)}}
+  .ci-ring{position:absolute;width:30vmin;height:8vmin;margin:-4vmin 0 0 -15vmin;border-radius:50%;border:3px solid var(--rc);opacity:0;z-index:5;animation:ciRing 1.4s var(--rd) ease-out both}
+  @keyframes ciRing{0%{transform:scale(.1);opacity:.9}100%{transform:scale(3);opacity:0}}
+  .ci-wash{position:absolute;inset:0;z-index:7;opacity:0;background:var(--wc);animation:ciWash 900ms var(--wd) forwards}
+  @keyframes ciWash{to{opacity:1}}
+  @keyframes csSecFish{
+    0%{transform:translate(-50%,-50%) translate(0,32vh) rotate(-30deg) scale(.7)}
+    25%{transform:translate(-50%,-50%) translate(0,4vh) rotate(-35deg) scale(.95)}
+    50%{transform:translate(-50%,-50%) translate(24vw,-34vh) rotate(0) scale(1.05)}
+    68%{transform:translate(-50%,-50%) translate(48vw,-12vh) rotate(30deg) scale(.95)}
+    74%{transform:translate(-50%,-50%) translate(48vw,-8vh) rotate(15deg) scale(.95)}
+    82%{transform:translate(-50%,-50%) translate(48vw,-10vh) rotate(0) scale(.95)}
+    100%{transform:translate(-50%,-50%) translate(32vw,-12vh) rotate(0) scale(1.15)}}
+  @keyframes csLimFish{
+    0%,18%{transform:translate(-50%,-50%) translate(0,30vh) scale(.5)}
+    30%{transform:translate(-50%,-50%) translate(0,-8vh) scale(1)}
+    44%{transform:translate(-50%,-50%) translate(0,-62vh) scale(1.2) rotate(-20deg)}
+    50%{transform:translate(-50%,-50%) translate(-40vw,-70vh) rotate(-90deg)}
+    58%{transform:translate(-50%,-50%) translate(-28vw,-48vh) rotate(40deg) scale(1.1)}
+    78%{transform:translate(-50%,-50%) translate(16vw,-5vh) rotate(60deg) scale(1.05)}
+    82%{transform:translate(-50%,-50%) translate(16vw,-10vh) rotate(25deg)}
+    86%{transform:translate(-50%,-50%) translate(16vw,-5vh) rotate(0)}
+    100%{transform:translate(-50%,-50%) translate(0,-6vh) rotate(0) scale(1.2)}}
+  .boss{position:fixed;inset:0;z-index:9998;display:flex;align-items:center;justify-content:center;background:rgba(6,4,20,.5);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:csIn .4s both}
+  .boss.hidden{display:none}
+  .boss-box{width:min(92vw,420px);text-align:center;color:#fff}
+  .boss-name{font-size:22px;font-weight:700;letter-spacing:.2em;text-shadow:0 0 14px #9b6bff}
+  .boss-fish{font-size:min(30vw,130px);animation:bossFloat 2s ease-in-out infinite;filter:drop-shadow(0 0 22px #9b6bff)}
+  .boss-fish.hit{animation:csShake .3s linear}
+  @keyframes bossFloat{50%{transform:translateY(-10px) rotate(4deg)}}
+  .boss-lbl{font-size:10px;letter-spacing:.2em;color:rgba(255,255,255,.6);text-align:left;margin:12px 0 4px}
+  .bar{height:12px;border-radius:8px;background:rgba(255,255,255,.12);overflow:hidden}
+  .bar>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff5d5d,#ff9a5d)}
+  .bar.t>i{background:linear-gradient(90deg,#5dd8ff,#7b8cff)}
+  .sc{position:relative;height:30px;margin:22px 0 14px;border-radius:15px;background:rgba(255,255,255,.12);overflow:hidden}
+  .sc-zone{position:absolute;top:0;bottom:0;width:20%;background:#1f9d57}
+  .sc-zone::after{content:'';position:absolute;top:0;bottom:0;left:25%;width:50%;background:#38e07b;box-shadow:0 0 12px #38e07b}
+  .sc-needle{position:absolute;top:0;bottom:0;width:4px;margin-left:-2px;background:#fff;box-shadow:0 0 8px #fff}
+  .sc-btn{width:100%;padding:14px;border-radius:14px;border:0;font-size:16px;font-weight:700;background:linear-gradient(#ffd95e,#e6ab52);color:#3a2500;cursor:pointer}
+  .sc-btn:disabled{filter:grayscale(.8) brightness(.6);cursor:default}
+  .boss-msg{min-height:22px;margin-top:12px;font-size:14px}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-emoji">🎣</span>
+      <div>
+        <h1>Ombak Tenang</h1>
+        <p class="tagline">idle fishing <span class="luck-badge">minor luck RNG</span></p>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="coin-display">
+        <span class="coin-icon">🪙</span>
+        <span id="coinCount">0</span>
+      </div>
+      <button class="icon-btn" id="mapBtn" title="Peta">🗺️</button>
+      <button class="icon-btn" id="settingsBtn" title="Pengaturan">⚙️</button>
+    </div>
+  </header>
+
+  <div id="eventBanner" class="event-banner hidden">
+    🌟 Akhir pekan event — ikan Limited <strong>"Verity"</strong> bisa muncul, sampai akhir Oktober
+  </div>
+
+  <main class="main-area">
+
+    <section class="sea-stage">
+      <div class="sun"></div>
+      <div class="horizon-glow"></div>
+      <div class="cloud cloud1"></div>
+      <div class="cloud cloud2"></div>
+
+      <div class="island"><svg viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg"><ellipse cx="60" cy="70" rx="58" ry="12" fill="#f1e4b8"/><ellipse cx="60" cy="66" rx="40" ry="9" fill="#e6d29b"/><path d="M60 66 Q56 40 64 14" stroke="#7a5a3a" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M64 14 Q44 6 30 18 Q50 12 64 14Z M64 14 Q84 4 98 16 Q80 12 64 14Z M64 14 Q50 -2 40 2 Q56 4 64 14Z M64 14 Q78 -2 90 4 Q72 4 64 14Z" fill="#3f9d5a"/></svg></div>
+
+      <div class="wave wave-1"></div>
+      <div class="wave wave-2"></div>
+      <div class="wave wave-3"></div>
+
+      <div class="glint" style="left:22%; top:52%; animation-delay:0s;"></div>
+      <div class="glint" style="left:68%; top:60%; animation-delay:1.1s;"></div>
+      <div class="glint" style="left:35%; top:70%; animation-delay:2s;"></div>
+      <div class="glint" style="left:78%; top:44%; animation-delay:.6s;"></div>
+
+      <div class="night-overlay"></div>
+      <div class="stars-layer" id="starsLayer"></div>
+      <div class="aurora" id="auroraLayer">
+        <div class="aurora-band b1"></div>
+        <div class="aurora-band b2"></div>
+        <div class="aurora-band b3"></div>
+      </div>
+
+      <div class="boat-rig">
+        <div class="boat-reflection"></div>
+        <svg class="boat-svg" viewBox="0 0 100 56" xmlns="http://www.w3.org/2000/svg">
+          <path d="M50 4 L50 30" stroke="#3a2c1f" stroke-width="2.4" stroke-linecap="round"/>
+          <path d="M50 8 L68 20 L50 22 Z" fill="#eaf6ef" opacity=".92"/>
+          <path d="M14 34 Q50 22 86 34 L80 46 Q50 54 20 46 Z" fill="#7a4a2c"/>
+          <path d="M14 34 Q50 22 86 34 L84 38 Q50 27 16 38 Z" fill="#94623c"/>
+        </svg>
+        <div class="line"></div>
+        <svg class="progress-ring" viewBox="0 0 32 32">
+          <circle class="ring-bg" cx="16" cy="16" r="14"></circle>
+          <circle id="ringProgress" class="ring-fg" cx="16" cy="16" r="14"></circle>
+        </svg>
+        <div class="hook">🪝</div>
+      </div>
+
+      <div id="rippleLayer"></div>
+      <div id="catchLayer" class="catch-layer"></div>
+      <div class="vignette"></div>
+      <div id="bucketFullNote" class="bucket-full-note hidden">Ember penuh — klaim dulu, ya</div>
+    </section>
+
+    <aside class="control-panel">
+      <div class="ember-row">
+        <span class="ember-label">🪣 <span id="bucketFill">0/15</span></span>
+        <div class="tier-chips" id="tierChips"></div>
+      </div>
+      <div class="auto-row" id="autoRow">
+        <button class="auto-chip" id="autoToggle"></button>
+        <span class="auto-chip" id="autoCount"></span>
+      </div>
+      <div class="action-row">
+        <button id="claimBtn" class="claim-btn" disabled>Klaim Hasil</button>
+        <button class="panel-btn" id="skillBtn" title="Skill Tree">🌳<span class="lbl">Skill</span></button>
+        <button class="panel-btn" id="indexBtn" title="Indeks Ikan">📖<span class="lbl">Indeks</span></button>
+        <button class="panel-btn" id="questBtn" title="Misi">🎯<span class="lbl">Misi</span></button>
+      </div>
+    </aside>
+
+  </main>
+
+  
+  <div class="modal-overlay hidden" id="skillModal">
+    <div class="modal-box skill-modal-box">
+      <div class="modal-head">
+        <div>
+          <h3>Skill Tree</h3>
+          <div class="sub">10 jalur · 5 node tiap jalur · maks 4 level/node — node berikutnya terkunci sampai node sebelumnya dibuka</div>
+        </div>
+        <button class="modal-close" data-close="skillModal">✕</button>
+      </div>
+      <div class="skill-tabs" id="skillTabs"></div>
+      <div class="modal-body skill-tree-body">
+        <div class="skill-tree-canvas" id="skillTreeCanvas"></div>
+        <div class="skill-detail" id="skillDetail"></div>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="modal-overlay hidden" id="indexModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h3>Indeks Ikan</h3>
+          <div class="sub">Catatan semua spesies yang pernah tertangkap</div>
+        </div>
+        <button class="modal-close" data-close="indexModal">✕</button>
+      </div>
+      <div class="modal-body" id="indexModalBody"></div>
+    </div>
+  </div>
+
+  
+    <div class="boss hidden" id="boss">
+    <div class="boss-box">
+      <div class="boss-name">Ikan ???</div>
+      <div class="boss-fish" id="bossFish">❓</div>
+      <div class="boss-lbl">HP</div>
+      <div class="bar"><i id="bossHp"></i></div>
+      <div class="boss-lbl">WAKTU</div>
+      <div class="bar t"><i id="bossTime"></i></div>
+      <div class="sc"><div class="sc-zone" id="scZone"></div><div class="sc-needle" id="scNeedle"></div></div>
+      <button class="sc-btn" id="scBtn">TANGKAP!</button>
+      <div class="boss-msg" id="bossMsg"></div>
+    </div>
+  </div>
+
+  <div class="cutscene hidden" id="cutscene">
+    <div class="cs-intro" id="csIntro">
+      <div id="ciSky"></div><div class="ci-moon"></div><div class="ci-beam"></div>
+      <div class="ci-sea b"></div><div class="ci-boat">⛵</div>
+      <div id="ciGhosts"></div><div class="ci-fish" id="ciFish"></div>
+      <div class="ci-sea f"></div><div id="ciFx"></div><div class="ci-wash"></div>
+    </div>
+    <div class="cs-main" id="csMain">
+      <div class="cs-bg"></div><div class="cs-rays"></div>
+      <div id="csFx"></div>
+      <div class="cs-bar top"></div><div class="cs-bar bot"></div>
+      <div class="cs-flash"></div>
+      <div class="cs-content">
+        <div class="cs-tier" id="csTier"></div>
+        <div class="cs-emoji" id="csEmoji"></div>
+        <div class="cs-name" id="csName"></div>
+        <div class="cs-sub" id="csSub"></div>
+      </div>
+      <div class="cs-skip">Ketuk untuk melanjutkan</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="mapModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div><h3>Peta</h3><div class="sub">Pilih lokasi memancing</div></div>
+        <button class="modal-close" data-close="mapModal">✕</button>
+      </div>
+      <div class="modal-body" id="mapModalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="questModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div><h3>Misi &amp; Koleksi</h3><div class="sub">Misi harian dan bonus permanen dari indeks ikan</div></div>
+        <button class="modal-close" data-close="questModal">✕</button>
+      </div>
+      <div class="modal-body" id="questModalBody"></div>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="settingsModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div><h3>Pengaturan</h3></div>
+        <button class="modal-close" data-close="settingsModal">✕</button>
+      </div>
+      <div class="modal-body settings-body">
+
+        <div class="settings-section" id="audioSection">
+          <h4>Audio</h4>
+          <label class="test-toggle">
+            <input type="checkbox" id="musicToggle" />
+            🎵 Musik Ambient
+          </label>
+          <label class="test-toggle">
+            <input type="checkbox" id="sfxToggle" />
+            🔊 Efek Suara (SFX)
+          </label>
+        </div>
+
+        <div class="settings-section" id="testModeSection">
+          <h4>Mode Uji</h4>
+          <div id="testModeLockRow">
+            <button id="unlockTestModeBtn" class="unlock-btn">🔒 Buka Mode Uji</button>
+            <p class="settings-note">Mode uji disembunyikan di balik kode akses.</p>
+          </div>
+          <div id="testModeUnlockedRow" class="hidden">
+            <span class="test-unlocked-badge">🔓 Mode uji terbuka</span>
+            <label class="test-toggle" style="margin-top:8px;">
+              <input type="checkbox" id="eventTestToggle" />
+              Mode uji: paksa event Limited aktif
+            </label>
+            <div class="dev-grid">
+              <button class="dev-btn" data-dev="coins1">+10.000 🪙</button>
+              <button class="dev-btn" data-dev="coins2">+1.000.000 🪙</button>
+              <button class="dev-btn" data-dev="fill">Isi ember</button>
+              <button class="dev-btn" data-dev="turbo">Turbo tangkap: mati</button>
+              <button class="dev-btn" data-dev="discover">Temukan semua ikan</button>
+              <button class="dev-btn" data-dev="quests">Selesaikan quest map</button>
+              <button class="dev-btn" data-dev="daily">Reset misi harian</button>
+              <button class="dev-btn" data-dev="togglemap">Buka / kunci Laguna</button>
+              <button class="dev-btn" data-dev="automax">Maks skill Otomasi</button>
+              <button class="dev-btn" data-dev="autoreset">Reset skill Otomasi</button>
+              <button class="dev-btn" data-dev="cs-mythical">🎬 Cutscene Mythical</button>
+              <button class="dev-btn" data-dev="cs-secret">🎬 Cutscene Secret</button>
+              <button class="dev-btn" data-dev="cs-limited" style="grid-column:1/3;">🎬 Cutscene Limited</button>
+              <button class="dev-btn" data-dev="boss-mythical">⚔️ Boss Mythical</button>
+              <button class="dev-btn" data-dev="boss-secret">⚔️ Boss Secret</button>
+              <button class="dev-btn" data-dev="boss-limited" style="grid-column:1/3;">⚔️ Boss Limited</button>
+              <button class="dev-btn" data-dev="resetmap" style="grid-column:1/3;">Reset quest &amp; kunci ulang Laguna</button>
+            </div>
+          </div>
+          <p class="settings-note">Ikan Limited "Verity" hanya muncul setiap hari Sabtu &amp; Minggu sampai akhir Oktober 2026. Di luar itu peluangnya nol.</p>
+        </div>
+
+        <button id="resetBtn" class="reset-btn">Reset Progres</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="nowPlaying" class="now-playing">
+    <div class="now-playing-disc"></div>
+    <div class="now-playing-text">
+      <div class="now-playing-label">Now Playing…</div>
+      <div class="now-playing-title" id="nowPlayingTitle">—</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  
+  const TIERS = [
+    { key:'common',    label:'Common',    color:'#8fd6c4', value:2,      baseWeight:55    },
+    { key:'uncommon',  label:'Uncommon',  color:'#5fb8a0', value:8,      baseWeight:25    },
+    { key:'rare',      label:'Rare',      color:'#5fa9d6', value:35,     baseWeight:0.6   },
+    { key:'epic',      label:'Epic',      color:'#9482d9', value:150,    baseWeight:0.25  },
+    { key:'legendary', label:'Legendary', color:'#e6ab52', value:800,    baseWeight:0.1   },
+    { key:'mythical',  label:'Mythical',  color:'#e0709a', value:5000,   baseWeight:0.035 },
+    { key:'secret',    label:'Secret',    color:'#d3564f', value:25000,  baseWeight:0.0125},
+    { key:'limited',   label:'Limited',   color:'#f4d35e', value:150000, baseWeight:0.005 },
+  ];
+  const TIER_MAP = Object.fromEntries(TIERS.map(t=>[t.key,t]));
+
+  const MAPS = [
+    { id:'tenang', prefix:'', name:'Ombak Tenang', icon:'🌅', cost:0,
+      desc:'Senja teduh yang berubah jadi malam berbintang dan aurora di akhir pekan.',
+      species:{
+    common:[
+      ['Ikan Teri','🐟'],['Ikan Kembung','🐟'],['Ikan Layang','🐟'],['Ikan Tongkol Kecil','🐟'],
+      ['Ikan Selar','🐟'],['Ikan Bandeng','🐟'],['Ikan Mujair','🐟'],['Ikan Nila','🐟'],
+      ['Ikan Mas','🐠'],['Ikan Sepat','🐠'],['Ikan Gabus Kecil','🐠'],['Ikan Lele Kolam','🐠'],
+      ['Ikan Bawal Kecil','🐠'],['Ikan Peda','🐟'],['Ikan Rebon','🐟'],['Ikan Belanak','🐟'],
+      ['Ikan Kerapu Muda','🐠'],['Ikan Baronang Kecil','🐠'],['Ikan Kakap Muda','🐠'],
+    ],
+    uncommon:[
+      ['Ikan Kakap Merah','🐠'],['Ikan Bawal Putih','🐠'],['Ikan Kerapu Macan','🐡'],
+      ['Ikan Baronang Dewasa','🐡'],['Ikan Tenggiri','🐟'],['Ikan Cakalang','🐟'],
+      ['Ikan Layur','🐡'],['Ikan Kuwe','🐠'],['Ikan Ekor Kuning','🐠'],['Ikan Julung-Julung','🐡'],
+      ['Belut Rawa','🐠'],['Udang Galah','🦐'],['Kepiting Bakau','🦀'],
+    ],
+    rare:[
+      ['Ikan Napoleon Muda','🐡'],['Ikan Kerapu Bebek','🐡'],['Kepiting Karang Raksasa','🦀'],
+      ['Udang Raja Laut','🦞'],['Ikan Layaran Kecil','🎏'],['Ikan Marlin Muda','🎏'],
+      ['Gurita Karang','🐙'],['Lobster Karang','🦞'],['Ikan Buntal Beracun','🐡'],
+    ],
+    epic:[
+      ['Gurita Kelana Dalam','🐙'],['Penyu Sisik Emas','🐢'],['Hiu Karang Muda','🦈'],
+      ['Pari Manta Kecil','🐬'],['Kuda Laut Raksasa','🐠'],['Kerang Mutiara Hitam','🐚'],
+    ],
+    legendary:[
+      ['Paus Kecil Bersuara','🐋'],['Cumi Raksasa Abyssal','🦑'],['Naga Laut Berkilau','🐉'],['Ikan Betara Samudra','🔱'],
+    ],
+    mythical:[
+      ['Ikan Purnama','🌙'],['Sirip Cahaya Kabut','✨'],['Roh Ombak Perak','🌫️'],
+    ],
+    secret:[
+      ['Naga Laut Kuno','🐉'],['Mata Badai Tersembunyi','🌀'],
+    ],
+      } },
+    { id:'laguna', prefix:'lg-', name:'Laguna Mentari', icon:'🏝️', cost:3000,
+      desc:'Laguna jernih di siang hari dengan pulau berpalem. 60 spesies baru. Selesaikan 10 quest untuk membukanya.',
+      species:{
+        common:[
+          ['Ikan Kepe-Kepe','🐠'],['Ikan Giru Biru','🐠'],['Ikan Sersan Mayor','🐠'],['Ikan Butana','🐟'],
+          ['Ikan Ekor Kuning Laguna','🐟'],['Ikan Pasir Putih','🐟'],['Ikan Kuniran','🐟'],['Ikan Kerong-Kerong','🐟'],
+          ['Ikan Kapas-Kapas','🐟'],['Ikan Teri Karang','🐟'],['Ikan Sebelah','🐟'],['Ikan Bambangan Mungil','🐠'],
+          ['Ikan Gerot-Gerot','🐟'],['Ikan Beloso','🐟'],['Ikan Kurisi','🐟'],['Ikan Lencam','🐠'],
+          ['Ikan Swanggi','🐠'],['Ikan Ketang-Ketang','🐠'],['Ikan Bulu Ayam','🐟'],['Ikan Kuro','🐟'],
+        ],
+        uncommon:[
+          ['Ikan Badut Oranye','🐠'],['Ikan Bidadari Biru','🐠'],['Ikan Kakatua Hijau','🐠'],['Ikan Bendera Karang','🐠'],
+          ['Ikan Kelelawar','🐠'],['Ikan Pipa Laut','🐟'],['Ikan Barakuda Muda','🐟'],['Ikan Todak','🐟'],
+          ['Ikan Lepu Ayam','🐡'],['Ikan Kotak Kuning','🐡'],['Udang Mantis','🦐'],['Udang Karang Kecil','🦐'],
+          ['Kepiting Pasir','🦀'],['Kerang Darah','🐚'],
+        ],
+        rare:[
+          ['Ikan Lepu Singa','🐡'],['Belut Moray Hijau','🐍'],['Kepiting Kelapa','🦀'],['Udang Pistol','🦐'],
+          ['Gurita Cincin Biru','🐙'],['Bintang Laut Raksasa','⭐'],['Ikan Kakap Bendera','🐠'],['Ikan Bubara Raksasa','🐟'],
+          ['Lobster Bambu','🦞'],['Ikan Kerapu Kertang','🐡'],
+        ],
+        epic:[
+          ['Penyu Hijau Laguna','🐢'],['Pari Elang Bertutul','🐟'],['Hiu Sirip Putih','🦈'],['Dugong Pemalu','🐬'],
+          ['Kuda Laut Pigmi','🐠'],['Kima Raksasa','🐚'],['Ubur-Ubur Bulan','🎐'],
+        ],
+        legendary:[
+          ['Hiu Paus Berbintik','🦈'],['Pari Manta Raksasa','🐬'],['Penyu Belimbing Purba','🐢'],['Naga Laguna Zamrud','🐉'],
+        ],
+        mythical:[
+          ['Ikan Fajar Kristal','🌅'],['Putri Karang Mutiara','🧜'],['Bintang Surya Samudra','☀️'],
+        ],
+        secret:[
+          ['Raja Terumbu Emas','👑'],['Pusaran Zamrud Tersembunyi','🌊'],
+        ],
+      } },
+  ];
+  const MAP_BY_ID = Object.fromEntries(MAPS.map(m=>[m.id,m]));
+  const LIMITED = [ ['La Piece','🌟',true], ['Verity','🙂'] ];
+  const FISH_INDEX = [];
+  MAPS.forEach(m=>{
+    Object.keys(m.species).forEach(tierKey=>{
+      m.species[tierKey].forEach((sp,i)=>{
+        FISH_INDEX.push({ id: m.prefix+tierKey+'-'+i, name: sp[0], emoji: sp[1], tier: tierKey, map: m.id });
+      });
+    });
+  });
+  LIMITED.forEach((sp,i)=>{
+    FISH_INDEX.push({ id:'limited-'+i, name:sp[0], emoji:sp[1], tier:'limited', map:'limited', unobtainable:!!sp[2] });
+  });
+  const POOLS = {};
+  FISH_INDEX.forEach(f=>{
+    if(f.unobtainable) return;
+    const key = (f.tier==='limited' ? '*' : f.map) + '|' + f.tier;
+    (POOLS[key] = POOLS[key] || []).push(f);
+  });
+  const MILESTONES = [[10,2],[25,3],[50,5],[80,5],[110,10]];
+  const MISSIONS = [
+    { id:'catch', label:'Tangkap 60 ikan',      goal:60, base:120 },
+    { id:'claim', label:'Klaim hasil 5 kali',   goal:5,  base:150 },
+    { id:'elite', label:'Tangkap 3 ikan Rare+', goal:3,  base:250 },
+  ];
+
+  
+  const EVENT_SEASON_END = new Date('2026-10-31T23:59:59').getTime();
+
+  
+  const SKILLS = [
+    { id:'speed1', name:'Tali Ringan', icon:'🧵', cat:'speed', perLevel:0.10, baseCost:30, mult:1.8 },
+    { id:'speed2', name:'Roda Gulung', icon:'🎣', cat:'speed', perLevel:0.08, baseCost:60, mult:1.9 },
+    { id:'speed3', name:'Refleks Nelayan', icon:'👁️', cat:'speed', perLevel:0.07, baseCost:120, mult:2.0 },
+    { id:'speed4', name:'Pelumas Kail', icon:'🛢️', cat:'speed', perLevel:0.06, baseCost:220, mult:2.1 },
+    { id:'speed5', name:'Insting Laut', icon:'🧭', cat:'speed', perLevel:0.05, baseCost:400, mult:2.2 },
+    { id:'quality1', name:'Umpan Segar', icon:'🪱', cat:'quality', perLevel:0.08, baseCost:35, mult:1.8 },
+    { id:'quality2', name:'Aroma Laut', icon:'🌊', cat:'quality', perLevel:0.06, baseCost:70, mult:1.9 },
+    { id:'quality3', name:'Jam Emas', icon:'🌅', cat:'quality', perLevel:0.05, baseCost:140, mult:2.0 },
+    { id:'quality4', name:'Doa Nelayan', icon:'🙏', cat:'quality', perLevel:0.04, baseCost:260, mult:2.1 },
+    { id:'quality5', name:'Bintang Penuntun', icon:'⭐', cat:'quality', perLevel:0.035, baseCost:480, mult:2.2 },
+    { id:'cap1', name:'Lambung Diperkuat', icon:'🛶', cat:'capacity', type:'cap', perLevel:6, baseCost:40, mult:1.8 },
+    { id:'cap2', name:'Ember Cadangan', icon:'🪣', cat:'capacity', type:'cap', perLevel:5, baseCost:90, mult:1.9 },
+    { id:'cap3', name:'Rak Penyimpanan', icon:'📦', cat:'capacity', type:'cap', perLevel:4, baseCost:180, mult:2.0 },
+    { id:'net1', name:'Jaring Ganda', icon:'🕸️', cat:'capacity', type:'net', perLevel:1, baseCost:300, mult:2.2 },
+    { id:'net2', name:'Tangan Ekstra', icon:'🤲', cat:'capacity', type:'net', perLevel:1, baseCost:600, mult:2.3 },
+    { id:'eco1', name:'Timbangan Jujur', icon:'⚖️', cat:'economy', perLevel:3, baseCost:50, mult:1.9 },
+    { id:'eco2', name:'Relasi Pasar', icon:'🤝', cat:'economy', perLevel:3, baseCost:110, mult:2.0 },
+    { id:'eco3', name:'Es Pendingin', icon:'❄️', cat:'economy', perLevel:2, baseCost:220, mult:2.1 },
+    { id:'eco4', name:'Reputasi Baik', icon:'📜', cat:'economy', perLevel:2, baseCost:420, mult:2.2 },
+    { id:'eco5', name:'Investor Kecil', icon:'💰', cat:'economy', perLevel:2, baseCost:800, mult:2.3 },
+    { id:'eff1', name:'Jangkar Otomatis', icon:'⚓', cat:'efficiency', perLevel:5, baseCost:60, mult:1.9 },
+    { id:'eff2', name:'Pelampung Pintar', icon:'🛟', cat:'efficiency', perLevel:4, baseCost:130, mult:2.0 },
+    { id:'eff3', name:'Catatan Pasang Surut', icon:'📖', cat:'efficiency', perLevel:4, baseCost:260, mult:2.1 },
+    { id:'eff4', name:'Radar Sederhana', icon:'📡', cat:'efficiency', perLevel:3, baseCost:500, mult:2.2 },
+    { id:'eff5', name:'Lentera Malam', icon:'🏮', cat:'efficiency', perLevel:3, baseCost:950, mult:2.3 },
+    { id:'exp1', name:'Peta Karang', icon:'🗺️', cat:'explore', perLevel:0.015, baseCost:80, mult:2.0 },
+    { id:'exp2', name:'Kompas Tua', icon:'🧭', cat:'explore', perLevel:0.0125, baseCost:180, mult:2.1 },
+    { id:'exp3', name:'Teropong Kabut', icon:'🔭', cat:'explore', perLevel:0.01, baseCost:380, mult:2.2 },
+    { id:'exp4', name:'Jurnal Pelaut', icon:'📓', cat:'explore', perLevel:0.0075, baseCost:750, mult:2.3 },
+    { id:'exp5', name:'Legenda Turun-Temurun', icon:'🏺', cat:'explore', perLevel:0.0075, baseCost:1500, mult:2.4 },
+    { id:'pity1', name:'Pity Dasar',   icon:'🎯', cat:'pity', threshold:10,  perLevel:0.00007, baseCost:250,   mult:2.0 },
+    { id:'pity2', name:'Pity Perak',   icon:'🥈', cat:'pity', threshold:20,  perLevel:0.00013, baseCost:630,   mult:2.1 },
+    { id:'pity3', name:'Pity Emas',    icon:'🥇', cat:'pity', threshold:50,  perLevel:0.00033, baseCost:1700,  mult:2.2 },
+    { id:'pity4', name:'Pity Berlian', icon:'💎', cat:'pity', threshold:100, perLevel:0.00067, baseCost:4200,  mult:2.3 },
+    { id:'pity5', name:'Pity Pelangi', icon:'🌈', cat:'pity', threshold:200, perLevel:0.00133, baseCost:10500, mult:2.4 },
+    { id:'stamina1', name:'Napas Panjang',   icon:'🫁', cat:'stamina', perLevel:0.06,  baseCost:190,  mult:1.85 },
+    { id:'stamina2', name:'Otot Terlatih',   icon:'💪', cat:'stamina', perLevel:0.05,  baseCost:420,  mult:1.95 },
+    { id:'stamina3', name:'Ritme Pancingan', icon:'🎣', cat:'stamina', perLevel:0.045, baseCost:900,  mult:2.05 },
+    { id:'stamina4', name:'Stamina Baja',    icon:'🦾', cat:'stamina', perLevel:0.04,  baseCost:2000, mult:2.15 },
+    { id:'stamina5', name:'Tanpa Lelah',     icon:'🔥', cat:'stamina', perLevel:0.035, baseCost:4200, mult:2.25 },
+    { id:'mastery1', name:'Mata Ahli',      icon:'🔍', cat:'mastery', perLevel:3,   baseCost:300,  mult:1.9 },
+    { id:'mastery2', name:'Teknik Filet',   icon:'🔪', cat:'mastery', perLevel:3,   baseCost:670,  mult:2.0 },
+    { id:'mastery3', name:'Sertifikat Mutu',icon:'📜', cat:'mastery', perLevel:2.5, baseCost:1600, mult:2.1 },
+    { id:'mastery4', name:'Kolektor Elit',  icon:'🏆', cat:'mastery', perLevel:2,   baseCost:3600, mult:2.2 },
+    { id:'mastery5', name:'Legenda Pasar',  icon:'👑', cat:'mastery', perLevel:2,   baseCost:8000, mult:2.3 },
+    { id:'charm1', name:'Jimat Karang',    icon:'🔱', cat:'charm', perLevel:0.01,  baseCost:270,  mult:1.9 },
+    { id:'charm2', name:'Kalung Mutiara',  icon:'📿', cat:'charm', perLevel:0.009, baseCost:630,  mult:2.0 },
+    { id:'charm3', name:'Azimat Nelayan',  icon:'🪬', cat:'charm', perLevel:0.008, baseCost:1400, mult:2.1 },
+    { id:'charm4', name:'Rantai Keramat',  icon:'⛓️', cat:'charm', perLevel:0.007, baseCost:3200, mult:2.2 },
+    { id:'charm5', name:'Berkah Samudra',  icon:'🌊', cat:'charm', perLevel:0.006, baseCost:7100, mult:2.3 },
+    { id:'auto1', name:'Juru Timbang',    icon:'🧑‍⚖️', cat:'auto', perLevel:0, baseCost:2500,  mult:2.2 },
+    { id:'auto2', name:'Pencatat Cepat',  icon:'📝', cat:'auto', perLevel:0, baseCost:7000,  mult:2.2 },
+    { id:'auto3', name:'Penjaga Dermaga', icon:'⚓', cat:'auto', perLevel:0, baseCost:16000, mult:2.2 },
+    { id:'auto4', name:'Bendahara',       icon:'💼', cat:'auto', perLevel:0, baseCost:36000, mult:2.2 },
+    { id:'auto5', name:'Kapten Otomasi',  icon:'🧭', cat:'auto', perLevel:0, baseCost:80000, mult:2.2 },
+  ];
+  const SKILL_MAX_LEVEL = 4;
+  const CATEGORY_META = {
+    speed:      { title:'Kecepatan',    icon:'⚡' },
+    quality:    { title:'Keberuntungan',icon:'🍀' },
+    capacity:   { title:'Kapasitas',    icon:'📦' },
+    economy:    { title:'Ekonomi',      icon:'💰' },
+    efficiency: { title:'Efisiensi',    icon:'⏱️' },
+    explore:    { title:'Eksplorasi',   icon:'🧭' },
+    pity:       { title:'Pity',         icon:'🎯' },
+    stamina:    { title:'Stamina',      icon:'🫁' },
+    mastery:    { title:'Mastery',      icon:'🏆' },
+    charm:      { title:'Charm',        icon:'🔱' },
+    auto:       { title:'Otomasi',      icon:'🤖' },
+  };
+
+  
+  const SAVE_KEY = 'ombakTenangSave_v2';
+  const defaultState = {
+    coins:0,
+    skills:{},
+    bucket:Object.fromEntries(TIERS.map(t=>[t.key,0])),
+    discovered:{},
+    totalCaught:0,
+    lastSave:Date.now(),
+    eventTestOverride:false,
+    testModeUnlocked:false,
+    musicEnabled:true,
+    sfxEnabled:true,
+    map:'tenang',
+    devTurbo:false,
+    autoOn:true,
+    stats:{ claims:0, elite:0, earned:0 },
+    questDone:{},
+    mapsUnlocked:{},
+    missions:{ day:'', progress:{}, claimed:{} },
+  };
+  let state = loadState();
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(SAVE_KEY);
+      if(!raw) return structuredCloneState(defaultState);
+      const parsed = JSON.parse(raw);
+      return {
+        ...structuredCloneState(defaultState),
+        ...parsed,
+        bucket:{...defaultState.bucket, ...(parsed.bucket||{})},
+        skills:{...(parsed.skills||{})},
+        discovered:{...(parsed.discovered||{})},
+        mapsUnlocked:{...(parsed.mapsUnlocked||{})},
+        stats:{...defaultState.stats, ...(parsed.stats||{})},
+        questDone:{...(parsed.questDone||{})},
+      };
+    }catch(e){
+      return structuredCloneState(defaultState);
+    }
+  }
+  function structuredCloneState(s){
+    return JSON.parse(JSON.stringify(s));
+  }
+  function saveState(){
+    state.lastSave = Date.now();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+  }
+
+  function skillLevel(id){ return state.skills[id] || 0; }
+
+  function sumEffect(filterFn){
+    let total = 0;
+    SKILLS.filter(filterFn).forEach(s=>{ total += skillLevel(s.id) * s.perLevel; });
+    return total;
+  }
+
+  function speedBonus(){ return sumEffect(s=>s.cat==='speed'); }
+  function qualityShiftTotal(){ return sumEffect(s=>s.cat==='quality'); }
+  function eliteShiftTotal(){ return sumEffect(s=>s.cat==='explore'); }
+  function capacityBonus(){ return sumEffect(s=>s.cat==='capacity' && s.type==='cap'); }
+  function netBonus(){ return sumEffect(s=>s.cat==='capacity' && s.type==='net'); }
+  function coinPct(){ return sumEffect(s=>s.cat==='economy'); }
+  function offlinePct(){ return sumEffect(s=>s.cat==='efficiency'); }
+  function staminaBonus(){ return sumEffect(s=>s.cat==='stamina'); }
+  function masteryPct(){ return sumEffect(s=>s.cat==='mastery'); }
+  function charmBonus(){ return sumEffect(s=>s.cat==='charm'); }
+  function pityBonus(){
+    let total = 0;
+    SKILLS.filter(s=>s.cat==='pity').forEach(s=>{
+      const lvl = skillLevel(s.id);
+      if(lvl <= 0) return;
+      const stacks = Math.floor(state.totalCaught / s.threshold);
+      total += stacks * lvl * s.perLevel;
+    });
+    return total;
+  }
+  function pityProgress(s){
+    return { current: state.totalCaught % s.threshold, target: s.threshold, stacks: Math.floor(state.totalCaught / s.threshold) };
+  }
+
+  const CATCH_INTERVAL_FLOOR = 0.5;
+  const CAP_ELITE_BASE = 0.25;
+  const CAP_ELITE_MIN = 0.03;
+
+  function catchInterval(){ if(state.devTurbo) return 0.15; return Math.max(CATCH_INTERVAL_FLOOR, 4 - speedBonus() - staminaBonus()); }
+  function capacity(){ return Math.round(15 + capacityBonus()); }
+  function netCount(){ return Math.round(1 + netBonus()); }
+  function coinMultiplier(){ return 1 + (coinPct() + milestoneBonus())/100; }
+  function offlineMultiplier(){ return 1 + offlinePct()/100; }
+  function bucketTotal(){ return TIERS.reduce((s,t)=>s+state.bucket[t.key],0); }
+  const ELITE_TIER_KEYS = ['rare','epic','legendary','mythical','secret','limited'];
+
+  const AUTO_TIMERS = [19, 15, 12, 8, 5];
+  const AUTO_RATES = [0, 0.90, 0.93, 0.96, 0.98, 1];
+  function autoSkills(){ return SKILLS.filter(x=>x.cat==='auto'); }
+  function autoNodes(){ return autoSkills().filter(x=>skillLevel(x.id) >= 1).length; }
+  function autoInterval(){ const n = autoNodes(); return n > 0 ? AUTO_TIMERS[Math.min(n,5)-1] : 0; }
+  function autoRate(){ return AUTO_RATES[Math.min(autoNodes(),5)]; }
+  function autoOfflineClaims(){ return autoSkills().reduce((a,x)=>a + Math.max(0, skillLevel(x.id)-1), 0); }
+  let lastAutoToast = 0;
+  let autoStart = 0;
+  function renderAuto(){
+    const row = document.getElementById('autoRow');
+    if(!row) return;
+    const on = autoInterval() > 0;
+    row.classList.toggle('on', on);
+    if(!on) return;
+    const t = document.getElementById('autoToggle');
+    t.textContent = '🤖 Auto: ' + (state.autoOn ? 'ON' : 'OFF');
+    t.classList.toggle('active', state.autoOn);
+  }
+
+  function skillCost(skill){
+    const lvl = skillLevel(skill.id);
+    return Math.floor(skill.baseCost * Math.pow(skill.mult, lvl));
+  }
+
+  
+  function isEventActive(){
+    if(state.eventTestOverride && state.testModeUnlocked) return true;
+    const now = new Date();
+    if(now.getTime() > EVENT_SEASON_END) return false;
+    const day = now.getDay();
+    return day === 0 || day === 6;
+  }
+
+  
+  function getWeights(){
+    const w = {};
+    TIERS.forEach(t=>{ w[t.key]=t.baseWeight; });
+    if(!isEventActive()) w.limited = 0;
+    const maxQualityShift = Math.max(0, (w.common + w.uncommon) - 8);
+    const totalQualityShift = Math.min(qualityShiftTotal() + pityBonus(), maxQualityShift);
+    if(totalQualityShift > 0){
+      const comShare = w.common / (w.common + w.uncommon);
+      const uncShare = 1 - comShare;
+      w.common -= totalQualityShift * comShare;
+      w.uncommon -= totalQualityShift * uncShare;
+      const targets = ['rare','epic','legendary','mythical','secret'];
+      const targetBaseSum = targets.reduce((s,k)=>s + TIER_MAP[k].baseWeight, 0);
+      targets.forEach(k=>{ w[k] += totalQualityShift * (TIER_MAP[k].baseWeight / targetBaseSum); });
+    }
+    const capElite = Math.max(CAP_ELITE_MIN, CAP_ELITE_BASE - charmBonus());
+    const maxEliteShift = Math.max(0, (w.rare + w.epic) - capElite);
+    const totalEliteShift = Math.min(eliteShiftTotal(), maxEliteShift);
+    if(totalEliteShift > 0){
+      const rareShare = w.rare / (w.rare + w.epic);
+      const epicShare = 1 - rareShare;
+      w.rare -= totalEliteShift * rareShare;
+      w.epic -= totalEliteShift * epicShare;
+      const targets = ['legendary','mythical','secret'];
+      const targetBaseSum = targets.reduce((s,k)=>s + TIER_MAP[k].baseWeight, 0);
+      targets.forEach(k=>{ w[k] += totalEliteShift * (TIER_MAP[k].baseWeight / targetBaseSum); });
+    }
+    return w;
+  }
+
+  function pickTier(weights){
+    const entries = TIERS.map(t=>[t.key, weights[t.key]]).filter(([,v])=>v>0);
+    const sum = entries.reduce((s,[,v])=>s+v,0);
+    let r = Math.random() * sum;
+    for(const [key,val] of entries){
+      if(r < val) return key;
+      r -= val;
+    }
+    return entries[entries.length-1][0];
+  }
+
+  function poolFor(t){ return t==='limited' ? POOLS['*|limited'] : POOLS[state.map+'|'+t]; }
+  function pickSpecies(t){
+    const list = poolFor(t);
+    return list[Math.floor(Math.random()*list.length)].id;
+  }
+
+  
+  let cycleStart = performance.now();
+
+  function doCatch(){
+    const weights = getWeights();
+    let space = capacity() - bucketTotal();
+    if(space <= 0) return;
+
+    const attempts = Math.min(netCount(), space);
+    const caughtTiers = [];
+    const newDiscoveries = [];
+    const msBefore = milestoneBonus();
+    for(let i=0;i<attempts;i++){
+      const tier = pickTier(weights);
+      state.bucket[tier]++;
+      caughtTiers.push(tier);
+      const speciesId = pickSpecies(tier);
+      const sp = FISH_INDEX.find(x=>x.id===speciesId);
+      if(!state.discovered[speciesId] && BOSS_CFG[sp.tier]){
+        if(!bossIds.has(speciesId)) startBoss(sp, false);
+      }else{
+        if(!state.discovered[speciesId]) newDiscoveries.push(speciesId);
+        state.discovered[speciesId] = (state.discovered[speciesId]||0) + 1;
+      }
+    }
+    state.totalCaught += caughtTiers.length;
+    missionAdd('catch', caughtTiers.length);
+    const eliteCount = caughtTiers.filter(t=>ELITE_TIER_KEYS.includes(t)).length;
+    if(eliteCount) missionAdd('elite', eliteCount);
+    state.stats.elite += eliteCount;
+    spawnCatchAnim(caughtTiers);
+    playSfx('catch');
+    if(newDiscoveries.length){
+      const first = FISH_INDEX.find(f=>f.id===newDiscoveries[0]);
+      const extra = newDiscoveries.length > 1 ? ` (+${newDiscoveries.length-1} lainnya)` : '';
+      showToast('✨ Ikan baru: ' + (first ? first.name : '') + extra);
+      playSfx('discover');
+      if(document.getElementById('indexModal') && !document.getElementById('indexModal').classList.contains('hidden')){
+        renderIndexModal();
+      }
+    }
+    const msAfter = milestoneBonus();
+    if(msAfter > msBefore) showToast('🏆 Milestone indeks tercapai! Bonus koin permanen +' + msAfter + '%');
+    renderBucket();
+    saveState();
+  }
+
+  function tick(now){
+    if(bossOpen){ requestAnimationFrame(tick); return; }
+    const interval = catchInterval();
+    const full = bucketTotal() >= capacity();
+    const elapsed = (now - cycleStart) / 1000;
+    const pct = full ? 1 : Math.min(1, elapsed / interval);
+
+    const ring = document.getElementById('ringProgress');
+    const circumference = 88;
+    ring.style.strokeDashoffset = String(circumference * (1 - pct));
+
+    document.getElementById('bucketFullNote').classList.toggle('hidden', !full);
+
+    if(!full && elapsed >= interval){
+      spawnRipple();
+      doCatch();
+      cycleStart = now;
+    }
+    const ai = autoInterval();
+    const cnt = document.getElementById('autoCount');
+    if(ai > 0 && state.autoOn){
+      let txt;
+      if(full){
+        if(!autoStart) autoStart = now;
+        if((now - autoStart)/1000 >= ai){
+          autoStart = 0;
+          claim(true);
+          txt = '🪣 menunggu penuh';
+        }else{
+          txt = '⏱ ' + Math.max(0, Math.ceil(ai - (now - autoStart)/1000)) + ' dtk';
+        }
+      }else{
+        autoStart = 0;
+        txt = '🪣 menunggu penuh';
+      }
+      if(cnt.textContent !== txt) cnt.textContent = txt;
+    }else{
+      autoStart = 0;
+      if(cnt.textContent) cnt.textContent = '';
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function spawnRipple(){
+    const layer = document.getElementById('rippleLayer');
+    const el = document.createElement('div');
+    el.className = 'ripple';
+    layer.appendChild(el);
+    setTimeout(()=>el.remove(), 1450);
+  }
+
+  function spawnCatchAnim(caughtTiers){
+    const layer = document.getElementById('catchLayer');
+    caughtTiers.slice(0,5).forEach((tierKey)=>{
+      const t = TIER_MAP[tierKey];
+      const el = document.createElement('span');
+      el.className = 'fish-pop';
+      el.textContent = poolFor(tierKey)[0].emoji;
+      el.style.setProperty('--dx', ((Math.random()*40)-20)+'px');
+      el.style.left = (48 + (Math.random()*10-5)) + '%';
+      layer.appendChild(el);
+      setTimeout(()=>el.remove(), 1100);
+    });
+  }
+
+  
+  function claim(auto, silent){
+    auto = auto === true;
+    silent = silent === true;
+    const total = bucketTotal();
+    if(total <= 0) return 0;
+    const eliteMult = 1 + masteryPct()/100;
+    let earned = 0;
+    TIERS.forEach(t=>{
+      const value = ELITE_TIER_KEYS.includes(t.key) ? t.value * eliteMult : t.value;
+      earned += state.bucket[t.key] * value;
+      state.bucket[t.key] = 0;
+    });
+    earned = Math.floor(earned * coinMultiplier());
+    if(auto) earned = Math.floor(earned * autoRate());
+    state.coins += earned;
+    state.stats.claims++;
+    state.stats.earned += earned;
+    missionAdd('claim', 1);
+    saveState();
+    renderCoins();
+    renderBucket();
+    if(skillModalOpen) renderSkillModal();
+    if(silent){
+    }else if(auto){
+      if(Date.now() - lastAutoToast > 4000){
+        lastAutoToast = Date.now();
+        showToast('🤖 +' + formatNum(earned) + ' koin (otomatis)');
+      }
+    }else{
+      playSfx('claim');
+      showToast('+' + formatNum(earned) + ' koin diklaim');
+    }
+    return earned;
+  }
+
+  
+  let skillModalOpen = false;
+  let indexModalOpen = false;
+  let currentSkillCat = 'speed';
+  let selectedSkillId = null;
+
+  function effectLabel(skill){
+    switch(skill.cat){
+      case 'speed': return '−' + skill.perLevel.toFixed(2) + 's / level';
+      case 'quality': return '+' + skill.perLevel + ' poin keberuntungan / level';
+      case 'explore': return '+' + skill.perLevel + ' fokus langka / level';
+      case 'capacity': return skill.type==='cap' ? ('+' + skill.perLevel + ' kapasitas / level') : ('+' + skill.perLevel + ' jaring / level');
+      case 'economy': return '+' + skill.perLevel + '% koin / level';
+      case 'efficiency': return '+' + skill.perLevel + '% efisiensi offline / level';
+      case 'pity': return '+ luck secuil tiap ' + skill.threshold + ' tangkapan (naik / level)';
+      case 'stamina': return '−' + skill.perLevel.toFixed(3) + 's jeda / level';
+      case 'mastery': return '+' + skill.perLevel + '% nilai jual ikan Rare+ / level';
+      case 'charm': return '−' + skill.perLevel + ' ambang batas geser Eksplorasi / level';
+      case 'auto': { const i = autoSkills().findIndex(x=>x.id===skill.id); return 'Klaim otomatis ' + AUTO_TIMERS[i] + ' dtk setelah ember penuh (setelah node ini dibeli) · tiap level 2–4: +1 klaim offline'; }
+      default: return '';
+    }
+  }
+  function isSkillUnlocked(catKey, index){
+    if(index === 0) return true;
+    const list = SKILLS.filter(s=>s.cat===catKey);
+    return skillLevel(list[index-1].id) >= 1;
+  }
+
+  function skillStateClass(skill, unlocked){
+    if(!unlocked) return 'locked';
+    const lvl = skillLevel(skill.id);
+    if(lvl >= SKILL_MAX_LEVEL) return 'maxed';
+    if(lvl > 0) return 'partial';
+    return 'available';
+  }
+
+  function renderSkillTabs(){
+    const tabWrap = document.getElementById('skillTabs');
+    tabWrap.innerHTML = '';
+    Object.keys(CATEGORY_META).forEach(catKey=>{
+      const meta = CATEGORY_META[catKey];
+      const list = SKILLS.filter(s=>s.cat===catKey);
+      const totalLvl = list.reduce((s,sk)=>s+skillLevel(sk.id),0);
+      const maxLvl = list.length * SKILL_MAX_LEVEL;
+      const tab = document.createElement('button');
+      tab.className = 'skill-tab' + (catKey===currentSkillCat ? ' active' : '');
+      tab.innerHTML = `<span>${meta.icon} ${meta.title}</span><span class="n">${totalLvl}/${maxLvl}</span>`;
+      tab.addEventListener('click', ()=>{
+        currentSkillCat = catKey;
+        const firstOfCat = SKILLS.find(s=>s.cat===catKey);
+        selectedSkillId = firstOfCat ? firstOfCat.id : null;
+        playSfx('click');
+        renderSkillModal();
+      });
+      tabWrap.appendChild(tab);
+    });
+  }
+
+  function renderSkillTreeCanvas(){
+    const canvas = document.getElementById('skillTreeCanvas');
+    const meta = CATEGORY_META[currentSkillCat];
+    const list = SKILLS.filter(s=>s.cat===currentSkillCat);
+
+    const gap = 96;
+    const rootX = 34;
+    const y = 60;
+    const r = 24;
+    const width = rootX + gap * (list.length) + 40;
+    const height = 128;
+
+    let svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`;
+    let prevX = rootX;
+    list.forEach((skill,i)=>{
+      const x = rootX + gap * (i+1);
+      const unlocked = isSkillUnlocked(currentSkillCat, i);
+      svg += `<line class="tree-line ${unlocked?'on':''}" x1="${prevX}" y1="${y}" x2="${x}" y2="${y}"></line>`;
+      prevX = x;
+    });
+    svg += `<g><circle class="tree-node-circle" cx="${rootX}" cy="${y}" r="18" style="fill:rgba(255,255,255,.06);stroke:rgba(255,255,255,.14);cursor:default;"></circle>
+      <text class="tree-root-emoji" x="${rootX}" y="${y}">${meta.icon}</text></g>`;
+
+    list.forEach((skill,i)=>{
+      const x = rootX + gap * (i+1);
+      const unlocked = isSkillUnlocked(currentSkillCat, i);
+      const lvl = skillLevel(skill.id);
+      const cls = skillStateClass(skill, unlocked);
+      const isSelected = selectedSkillId === skill.id;
+      const circumference = 2 * Math.PI * r;
+      const pct = lvl / SKILL_MAX_LEVEL;
+
+      svg += `<g class="tree-node ${cls} ${isSelected?'selected':''}" data-skill-id="${skill.id}" data-cat-index="${i}">`;
+      svg += `<circle class="tree-node-ring" cx="${x}" cy="${y}" r="${r+5}" ${isSelected?'style="stroke:#fff;opacity:.65;"':''}></circle>`;
+      if(unlocked && lvl > 0){
+        svg += `<circle class="tree-node-progress" cx="${x}" cy="${y}" r="${r+3}" stroke-dasharray="${circumference}" stroke-dashoffset="${circumference*(1-pct)}" transform="rotate(-90 ${x} ${y})"></circle>`;
+      }
+      svg += `<circle class="tree-node-circle" cx="${x}" cy="${y}" r="${r}"></circle>`;
+      svg += `<text class="tree-node-emoji" x="${x}" y="${y-2}">${unlocked ? skill.icon : '🔒'}</text>`;
+      svg += `<text class="tree-node-lvl" x="${x}" y="${y+r+13}">${unlocked ? (lvl+'/'+SKILL_MAX_LEVEL) : '—'}</text>`;
+      svg += `</g>`;
+    });
+
+    svg += `</svg>`;
+    canvas.innerHTML = svg;
+
+    canvas.querySelectorAll('.tree-node').forEach(node=>{
+      node.addEventListener('click', ()=>{
+        selectedSkillId = node.getAttribute('data-skill-id');
+        playSfx('click');
+        renderSkillModal();
+      });
+    });
+  }
+
+  function renderSkillDetailPanel(){
+    const panel = document.getElementById('skillDetail');
+    const list = SKILLS.filter(s=>s.cat===currentSkillCat);
+    let skill = list.find(s=>s.id===selectedSkillId);
+    if(!skill){ skill = list[0]; selectedSkillId = skill.id; }
+    const index = list.findIndex(s=>s.id===skill.id);
+    const unlocked = isSkillUnlocked(currentSkillCat, index);
+    const lvl = skillLevel(skill.id);
+    const maxed = lvl >= SKILL_MAX_LEVEL;
+    const cost = skillCost(skill);
+    const canAfford = unlocked && !maxed && state.coins >= cost;
+
+    let pips = '';
+    for(let i=0;i<SKILL_MAX_LEVEL;i++){
+      pips += `<span class="pip ${i<lvl?'on':''}"></span>`;
+    }
+
+    let lockNote = '';
+    if(!unlocked){
+      const prev = list[index-1];
+      lockNote = `<div class="sd-lock-note">🔒 Buka dulu "${prev.name}" (min. level 1) untuk membuka node ini.</div>`;
+    }
+
+    let pityBar = '';
+    if(skill.cat === 'pity' && unlocked){
+      const p = pityProgress(skill);
+      const pct = Math.min(100, (p.current / p.target) * 100);
+      const active = lvl > 0;
+      pityBar = `
+        <div class="pity-progress ${active?'':'inactive'}">
+          <div class="pity-progress-track"><div class="pity-progress-fill" style="width:${pct}%"></div></div>
+          <div class="pity-progress-label">${Math.floor(p.current)}/${p.target}${active ? ' · ' + p.stacks + 'x stack terkumpul' : ' · beli level 1 untuk mengaktifkan'}</div>
+        </div>`;
+    }
+
+    panel.innerHTML = `
+      <div class="sd-icon">${skill.icon}</div>
+      <div class="sd-info">
+        <div class="sd-name">${skill.name} <span class="pips">${pips}</span></div>
+        <div class="sd-effect">${effectLabel(skill)}</div>
+        ${pityBar}
+        ${lockNote}
+      </div>
+      <button class="skill-buy ${maxed?'maxed':''}" ${maxed || !unlocked || !canAfford ? 'disabled':''}>
+        ${!unlocked ? 'Terkunci' : (maxed ? 'Maks' : formatNum(cost)+' 🪙')}
+      </button>
+    `;
+
+    panel.querySelector('button').addEventListener('click', ()=>{
+      if(!unlocked || maxed || state.coins < cost) return;
+      state.coins -= cost;
+      state.skills[skill.id] = lvl + 1;
+      saveState();
+      playSfx('skillBuy');
+      renderAll();
+      renderSkillModal();
+    });
+  }
+
+  function renderSkillModal(){
+    if(!selectedSkillId){
+      const firstOfCat = SKILLS.find(s=>s.cat===currentSkillCat);
+      selectedSkillId = firstOfCat ? firstOfCat.id : null;
+    }
+    renderSkillTabs();
+    renderSkillTreeCanvas();
+    renderSkillDetailPanel();
+  }
+
+  
+  let indexTab = 'tenang';
+  function discoveredCount(){ return Object.keys(state.discovered).length; }
+  function milestoneBonus(){
+    const n = discoveredCount();
+    return MILESTONES.reduce((sum,[t,b])=> n>=t ? sum+b : sum, 0);
+  }
+
+  function renderIndexModal(){
+    const body = document.getElementById('indexModalBody');
+    body.innerHTML = '';
+    const tabs = document.createElement('div');
+    tabs.className = 'skill-tabs idx-tabs';
+    [['tenang','🌅 Ombak Tenang'],['laguna','🏝️ Laguna Mentari'],['limited','🌟 Limited']].forEach(([key,label])=>{
+      const b = document.createElement('button');
+      b.className = 'skill-tab' + (key===indexTab ? ' active' : '');
+      b.textContent = label;
+      b.addEventListener('click', ()=>{ indexTab = key; playSfx('click'); renderIndexModal(); });
+      tabs.appendChild(b);
+    });
+    body.appendChild(tabs);
+
+    const list = FISH_INDEX.filter(f=>f.map===indexTab);
+    const pool = list.filter(f=>!f.unobtainable || state.discovered[f.id]);
+    const found = pool.filter(f=>state.discovered[f.id]).length;
+    const progress = document.createElement('div');
+    progress.className = 'idx-progress';
+    progress.textContent = found + ' / ' + pool.length + ' spesies ditemukan';
+    body.appendChild(progress);
+
+    TIERS.forEach(t=>{
+      const items = list.filter(f=>f.tier===t.key);
+      if(!items.length) return;
+      const head = document.createElement('div');
+      head.className = 'idx-tier-head';
+      head.innerHTML = `<span class="idx-dot" style="background:${t.color}"></span><span>${t.label}</span>`;
+      body.appendChild(head);
+
+      const grid = document.createElement('div');
+      grid.className = 'idx-grid';
+      items.forEach(f=>{
+        const count = state.discovered[f.id] || 0;
+        const found = count > 0;
+        const item = document.createElement('div');
+        item.className = 'idx-item' + (f.unobtainable ? ' ub' : (found ? '' : ' undiscovered'));
+        const showName = found || f.unobtainable;
+        item.innerHTML = `
+          <span class="em">${showName ? f.emoji : '❔'}</span>
+          <span class="nm">${showName ? f.name : '???'}</span>
+          ${found ? `<span class="ct">x${count}</span>` : ''}
+          ${f.unobtainable ? '<span class="ub-tag">Unobtainable</span>' : ''}
+        `;
+        grid.appendChild(item);
+      });
+      body.appendChild(grid);
+    });
+  }
+
+  function isMapUnlocked(id){ return id==='tenang' || !!state.mapsUnlocked[id]; }
+  function applyMap(){
+    document.querySelector('.sea-stage').classList.toggle('map-laguna', state.map==='laguna');
+    updateSky();
+  }
+  function skillLevelsTotal(){ return Object.values(state.skills).reduce((a,b)=>a+b, 0); }
+  function discoveredIn(prefix){ return Object.keys(state.discovered).filter(k=>k.startsWith(prefix)).length; }
+  const MAP_QUESTS = {
+    laguna: [
+      { id:'lg1',  label:'Tangkap 100 ikan',                goal:100,  get:()=>state.totalCaught },
+      { id:'lg2',  label:'Temukan 15 spesies ikan',         goal:15,   get:()=>discoveredCount() },
+      { id:'lg3',  label:'Klaim hasil 10 kali',             goal:10,   get:()=>state.stats.claims },
+      { id:'lg4',  label:'Beli 5 level skill',              goal:5,    get:()=>skillLevelsTotal() },
+      { id:'lg5',  label:'Tangkap 10 ikan Rare ke atas',    goal:10,   get:()=>state.stats.elite },
+      { id:'lg6',  label:'Kumpulkan 2.000 koin dari klaim', goal:2000, get:()=>state.stats.earned },
+      { id:'lg7',  label:'Temukan 1 ikan Epic',             goal:1,    get:()=>discoveredIn('epic-') },
+      { id:'lg8',  label:'Perbesar ember jadi 25 slot',     goal:25,   get:()=>capacity() },
+      { id:'lg9',  label:'Tangkap 300 ikan',                goal:300,  get:()=>state.totalCaught },
+      { id:'lg10', label:'Temukan 30 spesies ikan',         goal:30,   get:()=>discoveredCount() },
+    ],
+  };
+  function questProgress(q){
+    const v = Math.min(q.goal, q.get());
+    if(v >= q.goal) state.questDone[q.id] = true;
+    return state.questDone[q.id] ? q.goal : v;
+  }
+  function questsDoneCount(mapId){
+    return (MAP_QUESTS[mapId]||[]).filter(q=>questProgress(q) >= q.goal).length;
+  }
+
+  function renderMapModal(){
+    const body = document.getElementById('mapModalBody');
+    body.innerHTML = '';
+    MAPS.forEach(m=>{
+      const unlocked = isMapUnlocked(m.id);
+      const current = state.map === m.id;
+      const quests = MAP_QUESTS[m.id] || [];
+      const doneN = questsDoneCount(m.id);
+      const questsOk = doneN >= quests.length;
+      const card = document.createElement('div');
+      card.className = 'row-card' + (current ? ' current' : '');
+      let label, disabled = false;
+      if(current){ label = 'Dipakai'; disabled = true; }
+      else if(unlocked){ label = 'Pakai'; }
+      else if(!questsOk){ label = '🔒 ' + doneN + '/' + quests.length; disabled = true; }
+      else { label = formatNum(m.cost) + ' 🪙'; disabled = state.coins < m.cost; }
+      const costNote = unlocked ? '' : '<div class="rc-desc">Syarat: ' + quests.length + ' quest + ' + formatNum(m.cost) + ' 🪙</div>';
+      card.innerHTML = `
+        <span class="rc-ico">${m.icon}</span>
+        <div class="rc-info"><div class="rc-name">${m.name}</div><div class="rc-desc">${m.desc}</div>${costNote}</div>
+        <button class="skill-buy" ${disabled ? 'disabled' : ''}>${label}</button>`;
+      card.querySelector('button').addEventListener('click', ()=>{
+        if(!unlocked){
+          if(!questsOk || state.coins < m.cost) return;
+          state.coins -= m.cost;
+          state.mapsUnlocked[m.id] = true;
+          playSfx('unlock');
+          showToast('🗺️ Peta baru terbuka: ' + m.name);
+        }else{
+          playSfx('click');
+        }
+        state.map = m.id;
+        saveState();
+        applyMap();
+        renderCoins();
+        renderMapModal();
+      });
+      body.appendChild(card);
+
+      if(!unlocked && quests.length){
+        const title = document.createElement('div');
+        title.className = 'sec-title';
+        title.textContent = 'Quest ' + m.name + ' · ' + doneN + '/' + quests.length;
+        body.appendChild(title);
+        quests.forEach((q,i)=>{
+          const prog = questProgress(q);
+          const done = prog >= q.goal;
+          const row = document.createElement('div');
+          row.className = 'q-row' + (done ? ' done' : '');
+          row.innerHTML = `<span>${done ? '✅' : '⬜'}</span>
+            <div class="q-main">${i+1}. ${q.label}<div class="mini-bar"><i style="width:${(prog/q.goal)*100}%"></i></div></div>
+            <span class="q-num">${formatNum(prog)}/${formatNum(q.goal)}</span>`;
+          body.appendChild(row);
+        });
+        saveState();
+      }
+    });
+  }
+
+  function todayKey(){ const d = new Date(); return d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate(); }
+  function ensureMissions(){
+    if(!state.missions || state.missions.day !== todayKey()){
+      state.missions = { day: todayKey(), progress:{}, claimed:{} };
+    }
+  }
+  function missionAdd(id, n){
+    ensureMissions();
+    const m = MISSIONS.find(x=>x.id===id);
+    const before = state.missions.progress[id] || 0;
+    state.missions.progress[id] = before + n;
+    if(before < m.goal && before + n >= m.goal){
+      showToast('🎯 Misi selesai: ' + m.label);
+    }
+  }
+  function missionReward(m){
+    const levels = Object.values(state.skills).reduce((a,b)=>a+b, 0);
+    return Math.round(m.base * (1 + levels/8));
+  }
+  function renderQuestModal(){
+    ensureMissions();
+    const body = document.getElementById('questModalBody');
+    body.innerHTML = '<div class="sec-title">Misi harian</div>';
+    MISSIONS.forEach(m=>{
+      const prog = Math.min(m.goal, state.missions.progress[m.id] || 0);
+      const done = prog >= m.goal;
+      const claimed = !!state.missions.claimed[m.id];
+      const reward = missionReward(m);
+      const row = document.createElement('div');
+      row.className = 'row-card';
+      row.innerHTML = `
+        <div class="rc-info">
+          <div class="rc-name">${m.label}</div>
+          <div class="rc-desc">${prog} / ${m.goal} · hadiah ${formatNum(reward)} 🪙</div>
+          <div class="mini-bar"><i style="width:${(prog/m.goal)*100}%"></i></div>
+        </div>
+        <button class="skill-buy" ${(!done || claimed) ? 'disabled' : ''}>${claimed ? 'Diambil' : 'Ambil'}</button>`;
+      row.querySelector('button').addEventListener('click', ()=>{
+        if(!done || claimed) return;
+        state.missions.claimed[m.id] = true;
+        state.coins += reward;
+        saveState();
+        renderCoins();
+        playSfx('claim');
+        showToast('+' + formatNum(reward) + ' koin dari misi');
+        renderQuestModal();
+      });
+      body.appendChild(row);
+    });
+    const note = document.createElement('p');
+    note.className = 'settings-note';
+    note.textContent = 'Misi diperbarui setiap hari.';
+    body.appendChild(note);
+
+    const n = discoveredCount();
+    const title = document.createElement('div');
+    title.className = 'sec-title';
+    title.style.marginTop = '16px';
+    title.textContent = 'Koleksi indeks · ' + n + ' spesies · bonus koin +' + milestoneBonus() + '%';
+    body.appendChild(title);
+    MILESTONES.forEach(([t,b])=>{
+      const ok = n >= t;
+      const row = document.createElement('div');
+      row.className = 'row-card';
+      row.style.opacity = ok ? '1' : '.6';
+      row.innerHTML = `
+        <span class="rc-ico">${ok ? '✅' : '⬜'}</span>
+        <div class="rc-info"><div class="rc-name">Temukan ${t} spesies</div><div class="rc-desc">Bonus koin permanen +${b}%</div></div>`;
+      body.appendChild(row);
+    });
+  }
+
+  
+  function renderCoins(){
+    document.getElementById('coinCount').textContent = formatNum(Math.floor(state.coins));
+  }
+
+  function renderBucket(){
+    renderAuto();
+    const total = bucketTotal();
+    document.getElementById('bucketFill').textContent = `${total}/${capacity()}`;
+    document.getElementById('claimBtn').disabled = total === 0;
+
+    const chipWrap = document.getElementById('tierChips');
+    chipWrap.innerHTML = '';
+    TIERS.forEach(t=>{
+      const count = state.bucket[t.key];
+      const chip = document.createElement('div');
+      chip.className = 'tier-chip' + (count===0 ? ' empty' : '');
+      chip.style.setProperty('--c', t.color);
+      chip.title = t.label;
+      chip.innerHTML = `<span class="n">${count}</span>`;
+      chipWrap.appendChild(chip);
+    });
+  }
+
+  function renderEventBanner(){
+    document.getElementById('eventBanner').classList.toggle('hidden', !isEventActive());
+  }
+
+  function renderAll(){
+    renderCoins();
+    renderBucket();
+    renderEventBanner();
+  }
+
+  function formatNum(n){
+    return Math.floor(n).toLocaleString('id-ID');
+  }
+
+  let toastTimer = null;
+  function showToast(msg){
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.remove('hidden');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>el.classList.add('hidden'), 2600);
+  }
+
+  
+  function applyOfflineProgress(){
+    const elapsedSec = (Date.now() - (state.lastSave || Date.now())) / 1000;
+    if(elapsedSec < 5) return;
+
+    const interval = catchInterval();
+    const ai = autoInterval();
+    const autoOn = ai > 0 && state.autoOn;
+    let claimsLeft = autoOn ? Math.min(1 + autoOfflineClaims(), Math.floor(elapsedSec / ai)) : 0;
+    let space = capacity() - bucketTotal();
+    if(space <= 0 && claimsLeft <= 0) return;
+
+    const possibleCycles = Math.max(0, Math.floor((elapsedSec / interval) * offlineMultiplier()));
+    const weights = getWeights();
+    let filled = 0, claims = 0, earnedTotal = 0;
+    for(let c=0; c<possibleCycles; c++){
+      if(space <= 0){
+        if(claimsLeft > 0 && bucketTotal() > 0){
+          earnedTotal += claim(true, true);
+          claims++;
+          claimsLeft--;
+          space = capacity() - bucketTotal();
+        }else break;
+      }
+      const attempts = Math.min(netCount(), space);
+      for(let i=0;i<attempts;i++){
+        const tier = pickTier(weights);
+        state.bucket[tier]++;
+        if(ELITE_TIER_KEYS.includes(tier)) state.stats.elite++;
+        space--;
+        filled++;
+        const speciesId = pickSpecies(tier);
+        state.discovered[speciesId] = (state.discovered[speciesId]||0) + 1;
+      }
+    }
+    if(claimsLeft > 0 && bucketTotal() >= capacity()){
+      earnedTotal += claim(true, true);
+      claims++;
+    }
+    if(filled > 0){
+      state.totalCaught += filled;
+    }
+    if(claims > 0){
+      showToast('🤖 Selagi kamu pergi: ' + claims + ' klaim otomatis, +' + formatNum(earnedTotal) + ' koin');
+    }else if(filled > 0){
+      showToast('Selagi kamu pergi, ember bertambah ' + filled + ' ikan');
+    }
+    saveState();
+  }
+  const MUSIC_MANIFEST_URL = 'assets/audio/music/playlist.json';
+  const MUSIC_DIR = 'assets/audio/music/';
+  const MUSIC_FALLBACK_FILENAMES = [];
+  const SFX_FILES = {
+    catch:    'assets/audio/sfx/catch.mp3',
+    claim:    'assets/audio/sfx/claim.mp3',
+    skillBuy: 'assets/audio/sfx/skill-buy.mp3',
+    discover: 'assets/audio/sfx/discover.mp3',
+    unlock:   'assets/audio/sfx/unlock.mp3',
+    error:    'assets/audio/sfx/error.mp3',
+    click:    'assets/audio/sfx/click.mp3',
+    aurora:   'assets/audio/sfx/aurora.mp3',
+  };
+  const MUSIC_VOLUME = 0.75;
+  const SFX_VOLUME = 0.22;
+
+  let MUSIC_TRACKS = [];
+
+  function filenameToTitle(filename){
+    const noExt = filename.replace(/\.[a-zA-Z0-9]+$/, '');
+    return decodeURIComponent(noExt).replace(/[_-]+/g,' ').trim();
+  }
+
+  function buildTracksFromFilenames(filenames){
+    return filenames.map(fn => ({ src: MUSIC_DIR + fn, name: filenameToTitle(fn) }));
+  }
+
+  async function loadMusicManifest(){
+    try{
+      const res = await fetch(MUSIC_MANIFEST_URL, { cache:'no-store' });
+      if(!res.ok) throw new Error('manifest not found');
+      const list = await res.json();
+      if(Array.isArray(list) && list.length){
+        MUSIC_TRACKS = buildTracksFromFilenames(list);
+        return;
+      }
+      throw new Error('manifest kosong');
+    }catch(e){
+      MUSIC_TRACKS = buildTracksFromFilenames(MUSIC_FALLBACK_FILENAMES);
+    }
+  }
+
+  const musicAudio = new Audio();
+  musicAudio.volume = MUSIC_VOLUME;
+  let lastTrackIndex = -1;
+  let musicStarted = false;
+  let nowPlayingTimer = null;
+
+  function showNowPlaying(name){
+    const el = document.getElementById('nowPlaying');
+    const titleEl = document.getElementById('nowPlayingTitle');
+    if(!el || !titleEl) return;
+    titleEl.textContent = name;
+    el.classList.add('show');
+    clearTimeout(nowPlayingTimer);
+    nowPlayingTimer = setTimeout(()=>el.classList.remove('show'), 4200);
+  }
+
+  function pickNextTrackIndex(excludeIdx){
+    if(MUSIC_TRACKS.length <= 1) return 0;
+    let idx;
+    do{ idx = Math.floor(Math.random() * MUSIC_TRACKS.length); } while(idx === excludeIdx);
+    return idx;
+  }
+  function playMusicTrack(idx){
+    if(!MUSIC_TRACKS.length) return Promise.reject(new Error('belum ada lagu'));
+    lastTrackIndex = idx;
+    const track = MUSIC_TRACKS[idx];
+    musicAudio.src = track.src;
+    const p = musicAudio.play();
+    if(p && p.then){
+      p.then(()=> showNowPlaying(track.name)).catch(()=>{});
+    }
+    return p;
+  }
+  musicAudio.addEventListener('ended', ()=>{
+    if(!state.musicEnabled) return;
+    playMusicTrack(pickNextTrackIndex(lastTrackIndex)).catch(()=>{});
+  });
+  async function startMusic(){
+    if(!state.musicEnabled) return;
+    if(!MUSIC_TRACKS.length) await loadMusicManifest();
+    playMusicTrack(pickNextTrackIndex(lastTrackIndex))
+      .then(()=>{ musicStarted = true; })
+      .catch(()=>{  });
+  }
+  function stopMusic(){ musicAudio.pause(); }
+
+  
+  const sfxPool = {};
+  Object.keys(SFX_FILES).forEach(name=>{
+    const a = new Audio(SFX_FILES[name]);
+    a.volume = SFX_VOLUME;
+    a.preload = 'auto';
+    sfxPool[name] = a;
+  });
+
+  let audioPrimed = false;
+  function primeAudioOnGesture(){
+    if(audioPrimed) return;
+    audioPrimed = true;
+    Object.values(sfxPool).forEach(a=>{
+      const p = a.play();
+      if(p && p.then){ p.then(()=>{ a.pause(); a.currentTime = 0; }).catch(()=>{ audioPrimed = false; }); }
+      else { try{ a.pause(); a.currentTime = 0; }catch(e){} }
+    });
+  }
+
+  function tryStartMusicOnGesture(){
+    primeAudioOnGesture();
+    if(musicStarted || !state.musicEnabled) return;
+    startMusic();
+  }
+  document.addEventListener('click', tryStartMusicOnGesture);
+  document.addEventListener('touchstart', tryStartMusicOnGesture);
+  document.addEventListener('keydown', tryStartMusicOnGesture);
+
+  function playSfx(name){
+    if(!state.sfxEnabled) return;
+    const a = sfxPool[name];
+    if(!a) return;
+    try{
+      a.currentTime = 0;
+      a.play().catch(()=>{  });
+    }catch(e){  }
+  }
+
+  document.getElementById('musicToggle').checked = state.musicEnabled;
+  document.getElementById('musicToggle').addEventListener('change', (e)=>{
+    state.musicEnabled = e.target.checked;
+    saveState();
+    if(state.musicEnabled) startMusic(); else stopMusic();
+  });
+  document.getElementById('sfxToggle').checked = state.sfxEnabled;
+  document.getElementById('sfxToggle').addEventListener('change', (e)=>{
+    state.sfxEnabled = e.target.checked;
+    saveState();
+    if(state.sfxEnabled) playSfx('click');
+  });
+
+  
+  function isNightTime(){
+    const h = new Date().getHours();
+    return h >= 18 || h < 6;
+  }
+  function isWeekendToday(){
+    const d = new Date().getDay();
+    return d === 0 || d === 6;
+  }
+  function initStars(){
+    const layer = document.getElementById('starsLayer');
+    if(!layer || layer.childElementCount) return;
+    for(let i=0;i<34;i++){
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = (Math.random()*100).toFixed(1) + '%';
+      s.style.top = (Math.random()*55).toFixed(1) + '%';
+      s.style.animationDelay = (Math.random()*3.6).toFixed(2) + 's';
+      layer.appendChild(s);
+    }
+  }
+  function updateSky(){
+    const stage = document.querySelector('.sea-stage');
+    if(!stage) return;
+    if(state.map==='laguna'){ stage.classList.remove('is-night','is-aurora'); return; }
+    const night = isNightTime();
+    const weekend = isWeekendToday();
+    const auroraOn = weekend;
+    const wasAurora = stage.classList.contains('is-aurora');
+    stage.classList.toggle('is-night', night);
+    stage.classList.toggle('is-aurora', auroraOn);
+    if(auroraOn && !wasAurora){
+      showToast('🌌 Aurora muncul di langit akhir pekan');
+      playSfx('aurora');
+    }
+  }
+
+  
+  const TEST_MODE_PASSCODE = 'project-tikw-ombaktenang';
+
+  function refreshTestModeUI(){
+    const lockRow = document.getElementById('testModeLockRow');
+    const unlockedRow = document.getElementById('testModeUnlockedRow');
+    if(state.testModeUnlocked){
+      lockRow.classList.add('hidden');
+      unlockedRow.classList.remove('hidden');
+      document.getElementById('eventTestToggle').checked = state.eventTestOverride;
+    }else{
+      lockRow.classList.remove('hidden');
+      unlockedRow.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('unlockTestModeBtn').addEventListener('click', ()=>{
+    const input = window.prompt('Masukkan kode akses mode uji:');
+    if(input === null) return;
+    if(input.trim() === TEST_MODE_PASSCODE){
+      state.testModeUnlocked = true;
+      saveState();
+      refreshTestModeUI();
+      showToast('🔓 Mode uji terbuka');
+      playSfx('unlock');
+    }else{
+      showToast('Kode salah');
+      playSfx('error');
+    }
+  });
+
+  
+  function openModal(id){
+    document.getElementById(id).classList.remove('hidden');
+    if(id==='skillModal'){ skillModalOpen = true; renderSkillModal(); }
+    if(id==='indexModal'){ indexModalOpen = true; renderIndexModal(); }
+    if(id==='settingsModal'){ refreshTestModeUI(); }
+    if(id==='mapModal'){ renderMapModal(); }
+    if(id==='questModal'){ renderQuestModal(); }
+    playSfx('click');
+  }
+  function closeModal(id){
+    document.getElementById(id).classList.add('hidden');
+    if(id==='skillModal') skillModalOpen = false;
+    if(id==='indexModal') indexModalOpen = false;
+  }
+  document.querySelectorAll('[data-close]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ closeModal(btn.getAttribute('data-close')); playSfx('click'); });
+  });
+  document.querySelectorAll('.modal-overlay').forEach(ov=>{
+    ov.addEventListener('click', (e)=>{
+      if(e.target === ov) closeModal(ov.id);
+    });
+  });
+
+  document.getElementById('skillBtn').addEventListener('click', ()=>openModal('skillModal'));
+  document.getElementById('indexBtn').addEventListener('click', ()=>openModal('indexModal'));
+  document.getElementById('settingsBtn').addEventListener('click', ()=>openModal('settingsModal'));
+  document.getElementById('mapBtn').addEventListener('click', ()=>openModal('mapModal'));
+  document.getElementById('questBtn').addEventListener('click', ()=>openModal('questModal'));
+
+  
+  document.getElementById('claimBtn').addEventListener('click', ()=>claim(false));
+  document.getElementById('autoToggle').addEventListener('click', ()=>{
+    state.autoOn = !state.autoOn;
+    playSfx('click');
+    saveState();
+    renderAuto();
+  });
+
+  document.getElementById('eventTestToggle').addEventListener('change', (e)=>{
+    state.eventTestOverride = e.target.checked;
+    saveState();
+    renderEventBanner();
+  });
+  document.getElementById('eventTestToggle').checked = state.eventTestOverride;
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if(confirm('Reset semua progres? Koin, skill, dan indeks ikan akan hilang.')){
+      state = structuredCloneState(defaultState);
+      saveState();
+      applyMap();
+      renderAll();
+      showToast('Progres direset');
+      closeModal('settingsModal');
+    }
+  });
+
+  const $id = i => document.getElementById(i);
+  const CUTSCENE_CFG = {
+    mythical: { cls:'cs-mythical', label:'M Y T H I C A L', sub:'Spesies baru tercatat di indeks', parts:26, rings:1, ms:5200, sfx:'discover', intro:0 },
+    secret:   { cls:'cs-secret',   label:'S E C R E T',     sub:'Rahasia samudra terungkap',      parts:44, rings:2, ms:6600, sfx:'aurora',   intro:3800 },
+    limited:  { cls:'cs-limited',  label:'L I M I T E D',   sub:'Ikan langka musiman, kamu mendapatkannya!', parts:72, rings:3, ms:8200, sfx:'unlock', intro:5400 },
+  };
+  const csQueue = [];
+  let csPlaying = false, csTimer = null, csIntroTimer = null, csStage = 0, csCur = null;
+  function queueCutscene(fish){ csQueue.push(fish); if(!csPlaying) nextCutscene(); }
+
+  function addRing(x, y, delay, color){
+    const r = document.createElement('div');
+    r.className = 'ci-ring';
+    r.style.left = x; r.style.top = y;
+    r.style.setProperty('--rc', color); r.style.setProperty('--rd', delay + 's');
+    $id('ciFx').appendChild(r);
+  }
+  function addSplash(x, y, delay, n, color){
+    for(let i=0;i<n;i++){
+      const q = document.createElement('div');
+      q.className = 'cs-particle';
+      q.style.left = x; q.style.top = y; q.style.background = color; q.style.boxShadow = '0 0 8px ' + color;
+      q.style.setProperty('--dx', ((Math.random()-.5)*28) + 'vmin');
+      q.style.setProperty('--dy', (-(6 + Math.random()*22)) + 'vmin');
+      q.style.setProperty('--sz', (3 + Math.random()*5) + 'px');
+      q.style.setProperty('--dur', (.8 + Math.random()*.7) + 's');
+      q.style.setProperty('--dl', (delay + Math.random()*.15) + 's');
+      q.style.zIndex = 5;
+      $id('ciFx').appendChild(q);
+    }
+  }
+  function buildIntro(tier, emoji, ms){
+    const it = $id('csIntro');
+    it.className = 'cs-intro on i-' + tier;
+    it.style.setProperty('--ms', ms + 'ms');
+    it.style.setProperty('--wd', (ms - 900) + 'ms');
+    $id('ciFish').textContent = emoji;
+    $id('ciFx').innerHTML = '';
+    const sky = $id('ciSky'); sky.innerHTML = '';
+    for(let i=0;i<46;i++){
+      const st = document.createElement('div');
+      st.className = 'ci-star';
+      st.style.left = (Math.random()*100) + '%';
+      st.style.top = (Math.random()*52) + '%';
+      st.style.animationDelay = (Math.random()*2) + 's';
+      sky.appendChild(st);
+    }
+    const gh = $id('ciGhosts'); gh.innerHTML = '';
+    if(tier === 'limited'){
+      for(let i=1;i<=6;i++){
+        const g = document.createElement('div');
+        g.className = 'ci-fish g';
+        g.textContent = emoji;
+        g.style.opacity = (0.4 - i*0.055);
+        g.style.animationDelay = (i*0.07) + 's';
+        gh.appendChild(g);
+      }
+      addRing('50vw','62vh',.7,'#ffd95e'); addRing('50vw','62vh',.95,'#fff3b0'); addRing('50vw','62vh',1.2,'#ffd95e');
+      addSplash('50vw','60vh',1.5,34,'#ffe9a0');
+      addRing('66vw','56vh',4.15,'#fff3b0'); addRing('66vw','56vh',4.4,'#ffd95e');
+      addSplash('66vw','54vh',4.15,26,'#ffd95e');
+    }else{
+      addRing('18vw','63vh',.6,'#bfe9ff');
+      addSplash('18vw','62vh',.6,20,'#bfe9ff');
+      addRing('66vw','57vh',2.55,'#bfe9ff');
+      addSplash('66vw','55vh',2.55,12,'#bfe9ff');
+    }
+  }
+
+  function nextCutscene(){
+    const fish = csQueue.shift();
+    if(!fish){ csPlaying = false; bossNext(); return; }
+    csPlaying = true;
+    const cfg = CUTSCENE_CFG[fish.tier];
+    csCur = cfg;
+    const el = $id('cutscene');
+    el.className = 'cutscene ' + cfg.cls;
+    $id('csMain').classList.remove('go');
+    $id('csIntro').className = 'cs-intro';
+    $id('csTier').textContent = cfg.label;
+    $id('csEmoji').textContent = fish.emoji;
+    $id('csName').textContent = fish.name;
+    $id('csSub').textContent = cfg.sub;
+    const fx = $id('csFx');
+    fx.innerHTML = '';
+    for(let i=0;i<cfg.rings;i++){
+      const r = document.createElement('div');
+      r.className = 'cs-ring';
+      r.style.animationDelay = (1.1 + i*0.45) + 's';
+      fx.appendChild(r);
+    }
+    for(let i=0;i<cfg.parts;i++){
+      const a = Math.random()*Math.PI*2, d = 25 + Math.random()*55;
+      const q = document.createElement('div');
+      q.className = 'cs-particle';
+      q.style.setProperty('--dx', (Math.cos(a)*d) + 'vmin');
+      q.style.setProperty('--dy', (Math.sin(a)*d) + 'vmin');
+      q.style.setProperty('--sz', (3 + Math.random()*6) + 'px');
+      q.style.setProperty('--dur', (1.8 + Math.random()*2.2) + 's');
+      q.style.setProperty('--dl', (1.1 + Math.random()*1.6) + 's');
+      fx.appendChild(q);
+    }
+    clearTimeout(csTimer); clearTimeout(csIntroTimer);
+    if(cfg.intro){
+      csStage = 1;
+      buildIntro(fish.tier, fish.emoji, cfg.intro);
+      csIntroTimer = setTimeout(startMainCutscene, cfg.intro);
+    }else{
+      startMainCutscene();
+    }
+  }
+  function startMainCutscene(){
+    clearTimeout(csIntroTimer);
+    csStage = 2;
+    $id('csIntro').className = 'cs-intro';
+    $id('csMain').classList.add('go');
+    playSfx(csCur.sfx);
+    clearTimeout(csTimer);
+    csTimer = setTimeout(endCutscene, csCur.ms);
+  }
+  function endCutscene(){
+    const el = $id('cutscene');
+    clearTimeout(csTimer); clearTimeout(csIntroTimer);
+    el.classList.add('out');
+    setTimeout(()=>{ el.classList.add('hidden'); el.classList.remove('out'); nextCutscene(); }, 600);
+  }
+  $id('cutscene').addEventListener('click', ()=>{
+    const el = $id('cutscene');
+    if(el.classList.contains('out')) return;
+    if(csStage === 1) startMainCutscene(); else endCutscene();
+  });
+
+  const BOSS_CFG = {
+    mythical: { hp:100, drain:2, sweep:1.1 },
+    secret:   { hp:100, drain:4, sweep:1.1 },
+    limited:  { hp:100, drain:8, sweep:1.1 },
+  };
+  const bossIds = new Set(), bossQueue = [];
+  let bossOpen = false, B = null;
+
+  function bossMoveZone(){
+    B.zone = 0.10 + Math.random()*0.80;
+    $id('scZone').style.left = ((B.zone - 0.10)*100) + '%';
+  }
+  function startBoss(f, test){
+    bossIds.add(f.id);
+    if(bossOpen || csPlaying){ bossQueue.push([f, test]); return; }
+    bossOpen = true;
+    const cfg = BOSS_CFG[f.tier];
+    const now = performance.now();
+    B = { f, test, cfg, hp:cfg.hp, time:100, cd:0, p:0, zone:.5, done:false, go:now+1200, last:now };
+    bossMoveZone();
+    $id('boss').classList.remove('hidden');
+    $id('bossHp').style.width = '100%';
+    $id('bossTime').style.width = '100%';
+    $id('bossMsg').textContent = 'Ikan ??? muncul! Bersiap...';
+    $id('scBtn').disabled = true;
+    playSfx('aurora');
+    requestAnimationFrame(bossLoop);
+  }
+  function bossLoop(now){
+    if(!B || B.done) return;
+    const dt = Math.min(0.1, (now - B.last)/1000);
+    B.last = now;
+    if(now >= B.go){
+      if($id('bossMsg').textContent.startsWith('Ikan ???')) $id('bossMsg').textContent = 'Tekan saat jarum di zona hijau!';
+      B.time -= B.cfg.drain * dt;
+      B.cd = Math.max(0, B.cd - dt);
+      const t = (now - B.go)/1000/B.cfg.sweep;
+      B.p = 1 - Math.abs((t % 2) - 1);
+      $id('scNeedle').style.left = (B.p*100) + '%';
+      const btn = $id('scBtn');
+      btn.disabled = B.cd > 0;
+      btn.textContent = B.cd > 0 ? 'Cooldown ' + B.cd.toFixed(1) + 's' : 'TANGKAP!';
+    }
+    $id('bossTime').style.width = Math.max(0, B.time) + '%';
+    if(B.time <= 0){ endBoss(false); return; }
+    requestAnimationFrame(bossLoop);
+  }
+  let missCtx = null;
+  function softMissSfx(){
+    if(state.sfxEnabled === false) return;
+    try{
+      missCtx = missCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if(missCtx.state === 'suspended') missCtx.resume();
+      const t = missCtx.currentTime;
+      const o = missCtx.createOscillator(), g = missCtx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(392, t);
+      o.frequency.exponentialRampToValueAtTime(294, t + 0.35);
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(0.07, t + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+      o.connect(g); g.connect(missCtx.destination);
+      o.start(t); o.stop(t + 0.5);
+    }catch(e){}
+  }
+  function scTry(){
+    if(!B || B.done || performance.now() < B.go || B.cd > 0) return;
+    const d = Math.abs(B.p - B.zone);
+    const dmg = d <= 0.05 ? 20 : (d <= 0.10 ? 10 : 0);
+    if(dmg > 0){
+      B.hp = Math.max(0, B.hp - dmg);
+      $id('bossHp').style.width = (B.hp / B.cfg.hp * 100) + '%';
+      $id('bossMsg').textContent = '✔ Kena! -' + dmg + ' HP';
+      const bf = $id('bossFish');
+      bf.classList.remove('hit'); void bf.offsetWidth; bf.classList.add('hit');
+      playSfx('claim');
+      if(B.hp <= 0){ endBoss(true); return; }
+    }else{
+      B.cd = 2;
+      $id('bossMsg').textContent = '✖ Meleset! Cooldown 2 detik';
+      softMissSfx();
+    }
+    bossMoveZone();
+  }
+  function endBoss(win){
+    B.done = true;
+    const b = B;
+    $id('bossMsg').textContent = win ? '🎣 Tertangkap!' : '💨 Ikan ??? berhasil kabur...';
+    $id('scBtn').disabled = true;
+    setTimeout(()=>{
+      $id('boss').classList.add('hidden');
+      bossIds.delete(b.f.id);
+      if(win){
+        if(!b.test){
+          state.discovered[b.f.id] = (state.discovered[b.f.id]||0) + 1;
+          saveState();
+          if(!$id('indexModal').classList.contains('hidden')) renderIndexModal();
+          showToast('✨ Ikan baru: ' + b.f.name);
+        }
+        queueCutscene(b.f);
+      }else{
+        if(!b.test){
+          if(state.bucket[b.f.tier] > 0) state.bucket[b.f.tier]--;
+          renderBucket();
+          saveState();
+          showToast('💨 Ikan ??? kabur, belum tercatat di indeks');
+        }
+        bossNext();
+      }
+    }, win ? 900 : 1500);
+  }
+  function bossNext(){
+    bossOpen = false;
+    B = null;
+    if(bossQueue.length){ const [f, t] = bossQueue.shift(); startBoss(f, t); }
+  }
+  $id('scBtn').addEventListener('pointerdown', e=>{ e.preventDefault(); scTry(); });
+  document.addEventListener('keydown', e=>{
+    if(e.code === 'Space' && bossOpen && !$id('boss').classList.contains('hidden')){ e.preventDefault(); scTry(); }
+  });
+
+  function devAction(name){
+    let msg = '';
+    if(name==='coins1'){ state.coins += 10000; msg = '+10.000 koin'; }
+    else if(name==='coins2'){ state.coins += 1000000; msg = '+1.000.000 koin'; }
+    else if(name==='fill'){
+      const space = capacity() - bucketTotal();
+      if(space > 0) state.bucket.common += space;
+      msg = 'Ember diisi penuh';
+    }
+    else if(name==='turbo'){
+      state.devTurbo = !state.devTurbo;
+      msg = 'Turbo tangkap ' + (state.devTurbo ? 'aktif' : 'mati');
+    }
+    else if(name==='discover'){
+      FISH_INDEX.forEach(f=>{ if(!f.unobtainable && !state.discovered[f.id]) state.discovered[f.id] = 1; });
+      msg = 'Semua ikan ditemukan';
+    }
+    else if(name==='quests'){
+      Object.values(MAP_QUESTS).forEach(list=>list.forEach(q=>{ state.questDone[q.id] = true; }));
+      msg = 'Semua quest map selesai';
+    }
+    else if(name==='daily'){
+      state.missions = { day:'', progress:{}, claimed:{} };
+      ensureMissions();
+      msg = 'Misi harian direset';
+    }
+    else if(name==='togglemap'){
+      if(state.mapsUnlocked.laguna){
+        delete state.mapsUnlocked.laguna;
+        if(state.map==='laguna') state.map = 'tenang';
+        msg = 'Laguna dikunci';
+      }else{
+        state.mapsUnlocked.laguna = true;
+        msg = 'Laguna dibuka';
+      }
+    }
+    else if(name==='automax'){ autoSkills().forEach(x=>{ state.skills[x.id] = 4; }); msg = 'Skill Otomasi maks'; }
+    else if(name==='autoreset'){ autoSkills().forEach(x=>{ delete state.skills[x.id]; }); msg = 'Skill Otomasi direset'; }
+    else if(name.startsWith('boss-')){
+      const tier = name.slice(5);
+      const list = FISH_INDEX.filter(f=>f.tier===tier && !f.unobtainable);
+      $id('settingsModal').classList.add('hidden');
+      startBoss(list[Math.floor(Math.random()*list.length)], true);
+      msg = 'Boss ' + tier;
+    }
+    else if(name.startsWith('cs-')){
+      const tier = name.slice(3);
+      const list = FISH_INDEX.filter(f=>f.tier===tier && !f.unobtainable);
+      document.getElementById('settingsModal').classList.add('hidden');
+      queueCutscene(list[Math.floor(Math.random()*list.length)]);
+      msg = 'Cutscene ' + tier;
+    }
+    else if(name==='resetmap'){
+      state.mapsUnlocked = {};
+      state.questDone = {};
+      state.stats = { claims:0, elite:0, earned:0 };
+      if(state.map!=='tenang') state.map = 'tenang';
+      msg = 'Quest direset, Laguna dikunci';
+    }
+    saveState();
+    applyMap();
+    renderAll();
+    refreshDevLabels();
+    if(!document.getElementById('indexModal').classList.contains('hidden')) renderIndexModal();
+    showToast('🛠️ ' + msg);
+  }
+  function refreshDevLabels(){
+    const t = document.querySelector('[data-dev="turbo"]');
+    if(t) t.textContent = 'Turbo tangkap: ' + (state.devTurbo ? 'aktif' : 'mati');
+  }
+  document.querySelectorAll('[data-dev]').forEach(b=>{
+    b.addEventListener('click', ()=>devAction(b.getAttribute('data-dev')));
+  });
+  refreshDevLabels();
+
+  setInterval(saveState, 8000);
+  window.addEventListener('beforeunload', saveState);
+  setInterval(updateSky, 30000);
+
+  
+  applyOfflineProgress();
+  renderAll();
+  refreshTestModeUI();
+  initStars();
+  ensureMissions();
+  applyMap();
+  startMusic();
+  cycleStart = performance.now();
+  requestAnimationFrame(tick);
+
+})();
+</script>
+</body>
+</html>
